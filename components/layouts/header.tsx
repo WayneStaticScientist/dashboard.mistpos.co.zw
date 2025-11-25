@@ -1,9 +1,6 @@
 import React from "react";
 import {
   Bars3Icon as IconMenu,
-  HomeIcon as IconHome,
-  CubeIcon as IconBox,
-  UserGroupIcon as IconUsers,
   ShoppingCartIcon as IconShoppingCart,
   MagnifyingGlassIcon as IconSearch,
 } from "@heroicons/react/24/outline";
@@ -35,7 +32,7 @@ export default function Header({
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden md:block text-sm text-slate-600">
+          <div className="hidden md:block text-sm text-accent">
             Welcome back, Admin
           </div>
           <button

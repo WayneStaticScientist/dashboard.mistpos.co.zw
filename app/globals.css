@@ -3,14 +3,28 @@
 /* Note: You may need to change the path to fit your project structure */
 @source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 @custom-variant dark (&:is(.dark *));
+
 :root {
+  /* Default (Light Mode) Colors */
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Primary: Blue (RGB: 20, 89, 180) -> HSL Channels */
+  --primary: 215 78 39;
+  /* Accent: Orange (RGB: 255, 153, 0) -> RGB Channels */
+  --accent: 255 153 0;
+
+  --primary-foreground: 0 0 100; /* White */
 }
 
+/* CRITICAL: HeroUI's theme block maps the generic color names */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-primary-foreground: var(--primary-foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -19,6 +33,11 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* Dark mode adjustments (optional) */
+    --primary: 215 78 50;
+    --accent: 255 153 0;
+    --primary-foreground: 0 0 100;
   }
 }
 

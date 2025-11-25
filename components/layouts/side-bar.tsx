@@ -14,7 +14,7 @@ export default function SideBar({ sidebarOpen }: { sidebarOpen: boolean }) {
       } md:translate-x-0 transition-transform duration-200 ease-in-out bg-white border-r`}
     >
       <div className="h-16 flex items-center px-4 border-b">
-        <h1 className="font-bold text-lg">StoreFlow</h1>
+        <h1 className="font-bold text-lg">MistPOS</h1>
       </div>
       <nav className="p-4">
         <a
