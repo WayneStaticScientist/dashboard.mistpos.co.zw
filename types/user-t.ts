@@ -1,0 +1,22 @@
+export type TUser = {
+  till: number;
+  role: string;
+  phone: string;
+  email: string;
+  country: string;
+  pincode: string;
+  fullName: string;
+  company: string;
+  password: string;
+  companies: string[];
+  accessToken: string;
+  companyName: string;
+  refreshToken: string;
+  pinnedInput: boolean;
+  baseCurrence: string;
+  permissions: string[];
+  receitsCount: number;
+  subscriptions: string[];
+  paynowActivated: boolean;
+  pin: string;
+};
