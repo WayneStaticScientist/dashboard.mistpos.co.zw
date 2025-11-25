@@ -18,5 +18,5 @@ export type TUser = {
   receitsCount: number;
   subscriptions: string[];
   paynowActivated: boolean;
-  pin: string;
+  _id: string | null | undefined;
 };

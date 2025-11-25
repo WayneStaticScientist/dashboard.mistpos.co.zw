@@ -12,7 +12,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="flex">
         <SideBar sidebarOpen={sidebarOpen} />
-        <div className="flex-1 min-h-screen md:pl-64">
+        <div className="flex-1 min-h-screen md:pl-72">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           <MistNavigation path={page} />
         </div>

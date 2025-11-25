@@ -74,12 +74,12 @@ const centerTextPlugin: CenterTextPlugin = {
 
 // 4. Define the Data type
 const data: ChartData<"doughnut"> = {
-  labels: ["Sales", "Marketing", "Development", "Support"],
+  labels: ["Sales", "Marketing"],
   datasets: [
     {
       label: "Department Allocation",
-      data: [35, 25, 30, 10],
-      backgroundColor: ["#ef4444", "#f59e0b", "#10b981", "#3b82f6"],
+      data: [35, 65],
+      backgroundColor: ["#ef4444", "#f59e0b"],
       borderColor: "#ffffff",
       borderWidth: 4,
     },
@@ -110,26 +110,45 @@ const options: ChartOptions<"doughnut"> = {
 };
 
 // 6. Define the Functional Component type
-export const CircularWheelChart: React.FC = () => {
+export const CircularWheelChart = ({
+  label,
+  className,
+  chartData,
+}: {
+  className?: string;
+  label: string;
+  chartData: {
+    name: string;
+    value: number;
+    color: string;
+  }[];
+}) => {
+  const totalData = chartData.reduce(
+    (prev, current) => prev + current.value,
+    0
+  );
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl shadow-lg m-4 w-full max-w-lg mx-auto">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-        Budget Allocation Wheel
+    <div className={className}>
+      <h2 className="text-xl  text-foreground mb-6 text-center w-[200px]">
+        {label}
       </h2>
-
-      {/* Chart container with fixed dimensions */}
-      <div className="w-[350px] h-[350px] relative">
+      <div className="w-[200px] h-[200px] relative">
         <Doughnut
-          data={data}
+          data={{
+            labels: chartData.map((e) => e.name),
+            datasets: [
+              {
+                label: "Department Allocation",
+                data: chartData.map((e) => (e.value * 100) / totalData),
+                backgroundColor: chartData.map((e) => e.color),
+                borderWidth: 0,
+              },
+            ],
+          }}
           options={options}
-          // Cast the plugin array element to the expected type
           plugins={[centerTextPlugin as Plugin<"doughnut", Object>]}
         />
       </div>
-
-      <p className="mt-4 text-sm text-gray-500">
-        Each segment represents the percentage allocated to a department.
-      </p>
     </div>
   );
 };

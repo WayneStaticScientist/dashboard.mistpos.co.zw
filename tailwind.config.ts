@@ -1,28 +1,24 @@
-import { Config } from "tailwindcss/plugin";
+import type { Config } from "tailwindcss";
+import { heroui } from "@heroui/theme";
 
 const config: Config = {
-  // CRITICAL: Ensure this content array covers all your files
+  // CRITICAL: Ensure the content array is still here for non-CSS-first processing
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
+  // Keep the HeroUI plugin here
+  plugins: [heroui()],
+
+  // NOTE: In Tailwind v4, you often place themes/extends directly here
   theme: {
     extend: {
       colors: {
-        // Primary: Defined using HSL channels
-        primary: "hsl(var(--primary) / <alpha-value>)",
-        // Accent: Defined using RGB channels (as a robust example)
-        accent: "orange",
-        "primary-foreground": "hsl(var(--primary-foreground) / <alpha-value>)",
+        // ... (your custom colors)
       },
     },
   },
-  plugins: [
-    // This assumes you have a local HeroUI plugin setup at ./hero.ts
-    // or are using a standard plugin configuration.
-    // If you don't have this file, you might need to adjust the HeroUI setup.
-    // require('./hero.ts'),
-  ],
 };
+
 export default config;
