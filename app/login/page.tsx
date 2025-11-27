@@ -1,5 +1,5 @@
 "use client";
-import { Input } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import React, { useState, FormEvent } from "react";
 import { MdLock, MdMail } from "react-icons/md";
 // Main Login Component
@@ -67,107 +67,43 @@ const LoginApp: React.FC = () => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Input */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-[#e6e6e610] mb-1"
-            >
-              Email Address
-            </label>
-            <div className="relative">
-              <MdMail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-[#e6e6e610] dark:border-gray-600 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 transition duration-150 ease-in-out"
-                placeholder="you@storename.com"
-                disabled={isLoading}
-              />
-            </div>
-            <Input label="Email" type="email" variant={"bordered"} />
-          </div>
-
-          {/* Password Input */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-[#e6e6e610] mb-1"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <MdLock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-[#e6e6e610] dark:border-gray-600 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 transition duration-150 ease-in-out"
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white transition duration-300 ease-in-out ${
-                isLoading
-                  ? "bg-indigo-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-900"
-              }`}
-            >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Signing In...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </button>
-          </div>
+          <Input
+            isRequired
+            label="Email"
+            type="email"
+            placeholder="email"
+            labelPlacement="outside"
+            variant={"flat"}
+            startContent={<MdMail />}
+          />
+          <div className="h-1" />
+          <Input
+            isRequired
+            label="Password"
+            type="password"
+            placeholder="password"
+            labelPlacement="outside"
+            variant={"flat"}
+            startContent={<MdLock />}
+          />
+          <Button
+            type="submit"
+            className="w-full"
+            isLoading={false}
+            color="primary"
+          >
+            Login
+          </Button>
         </form>
 
         {/* Footer Link */}
         <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          Trouble logging in?{" "}
+          Forgot Password?{" "}
           <a
             href="#"
-            className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            className="font-medium text-primary-400 hover:text-primary-700"
           >
-            Contact Support
+            Request New
           </a>
         </p>
       </div>
