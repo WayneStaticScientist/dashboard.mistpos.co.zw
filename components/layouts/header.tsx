@@ -1,9 +1,10 @@
-import React from "react";
+"use client";
 import {
   Bars3Icon as IconMenu,
   ShoppingCartIcon as IconShoppingCart,
   MagnifyingGlassIcon as IconSearch,
 } from "@heroicons/react/24/outline";
+import useSessionState from "@/stores/session-store";
 export default function Header({
   setSidebarOpen,
   sidebarOpen,
@@ -11,6 +12,7 @@ export default function Header({
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }) {
+  const session = useSessionState();
   return (
     <header className="sticky top-0 z-10 bg-background border-b">
       <div className="flex items-center justify-between h-16 px-4">
@@ -34,7 +36,7 @@ export default function Header({
         </div>
         <div className="flex items-center gap-4">
           <div className="hidden md:block text-sm text-foreground">
-            Welcome back, Admin
+            Welcome back, {session.fullName}
           </div>
           <button
             className="p-2 rounded-md hover:bg-[#e6e6e617]"

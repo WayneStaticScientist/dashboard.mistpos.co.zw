@@ -14,7 +14,7 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     if (deviceId) {
-      config.headers["x-device-id"] = deviceId;
+      config.headers["device"] = deviceId;
     }
     return config;
   },
@@ -43,11 +43,12 @@ apiClient.interceptors.response.use(
 
 export const getNewTokensForTransport = async (): Promise<TUser> => {
   try {
-    const response = await axios.get(
+    const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API}` + `/user/tokens`,
+      {},
       {
         headers: {
-          "x-device-id": getUserDeviceId(),
+          device: getUserDeviceId(),
           Authorization: `Bearer ${getRefreshToken()}`,
         },
       }
@@ -59,6 +60,10 @@ export const getNewTokensForTransport = async (): Promise<TUser> => {
     localStorage.setItem("user", JSON.stringify(body.user));
     return body.user;
   } catch (error) {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    useSessionState.setState({});
     throw error;
   }
 };
@@ -66,9 +71,20 @@ export default apiClient;
 function getAccessToken() {
   return localStorage.getItem("accessToken");
 }
-function getUserDeviceId() {
+export function getUserDeviceId() {
+  let deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = generateDeviceId();
+    localStorage.setItem("deviceId", deviceId);
+  }
   return localStorage.getItem("deviceId");
 }
 function getRefreshToken() {
   return localStorage.getItem("refreshToken");
+}
+function generateDeviceId(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }

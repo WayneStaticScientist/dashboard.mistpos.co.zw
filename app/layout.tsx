@@ -2,6 +2,7 @@
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { HeroUIProvider } from "@heroui/react";
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
   children,
@@ -14,6 +15,7 @@ export default function RootLayout({
         <HeroUIProvider>
           <ThemeProvider attribute={"class"} enableSystem={true}>
             {children}
+            <Toaster />
           </ThemeProvider>
         </HeroUIProvider>
       </body>

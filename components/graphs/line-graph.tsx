@@ -1,3 +1,4 @@
+"use client";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,6 +12,7 @@ import {
   ChartOptions, // Import ChartOptions type
   ChartData, // Import ChartData type
 } from "chart.js";
+import { useMainReportStore } from "@/stores/main-report-store";
 
 // 1. Register Chart.js components
 // This step is crucial for Chart.js to work correctly
@@ -91,38 +93,35 @@ const labels: string[] = [
   "Aug",
 ];
 
-const chartData: ChartData<ChartType> = {
-  labels,
-  datasets: [
-    {
-      label: "Sales",
-      data: labels.map(
-        () => Math.floor(Math.random() * (150 - 50 + 1) + 50) * 100
-      ),
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-      tension: 0.4, // Smooth curve
-    },
-    {
-      label: "Profits",
-      data: labels.map(
-        () => Math.floor(Math.random() * (150 - 50 + 1) + 50) * 100
-      ),
-      borderColor: "rgb(0, 255, 132)",
-      backgroundColor: "rgba(0, 255, 132, 0.5)",
-      tension: 0.4, // Smooth curve
-    },
-  ],
-};
-
 // 4. Main App Component (Using React.FC for function component typing)
 export const MistLineGraph = ({ label }: { label: string }) => {
+  const report = useMainReportStore();
+
   return (
     <div className=" bg-background   flex items-start justify-center font-['Inter']">
       <div className="w-full max-w-4xl bg-background shadow-xl rounded-2xl">
         <div className=" w-full min-h-80">
           <Line
-            data={chartData}
+            data={{
+              labels: report.list.map((e) => e.date),
+              datasets: [
+                {
+                  label: "Sales",
+                  data: report.list.map((e) => e.totalPaid),
+                  borderColor: "rgb(255, 99, 132)",
+                  backgroundColor: "rgba(255, 99, 132, 0.5)",
+                  tension: 0.4, // Smooth curve
+                },
+                {
+                  label: "Profits",
+                  data: report.list.map((e) => e.totalProfit),
+
+                  borderColor: "rgb(0, 255, 132)",
+                  backgroundColor: "rgba(0, 255, 132, 0.5)",
+                  tension: 0.4, // Smooth curve
+                },
+              ],
+            }}
             options={{
               responsive: true,
               maintainAspectRatio: false, // Allows flexible sizing within the container
@@ -140,9 +139,7 @@ export const MistLineGraph = ({ label }: { label: string }) => {
                   text: label,
                   font: {
                     size: 18,
-                    family: "Inter",
                   },
-                  color: "#1f2937", // Dark gray title
                 },
                 tooltip: {
                   mode: "index",
@@ -164,7 +161,7 @@ export const MistLineGraph = ({ label }: { label: string }) => {
                 x: {
                   title: {
                     display: true,
-                    text: "Month",
+                    text: "Day",
                     font: { family: "Inter" },
                   },
                   grid: {

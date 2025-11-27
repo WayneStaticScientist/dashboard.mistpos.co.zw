@@ -1,14 +1,11 @@
 "use client";
-import { initialProducts } from "@/tests/dummy-data";
-import { useState } from "react";
+import { useMainReportStore } from "@/stores/main-report-store";
+import { Button } from "@heroui/react";
+import { FiDelete } from "react-icons/fi";
 
 export const TableProducts = ({ query }: { query: string }) => {
-  const [products] = useState(initialProducts);
-  const filtered = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(query.toLowerCase()) ||
-      p.sku.toLowerCase().includes(query.toLowerCase())
-  );
+  const { items } = useMainReportStore();
+
   return (
     <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
       <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
@@ -19,7 +16,6 @@ export const TableProducts = ({ query }: { query: string }) => {
         <table className="min-w-full text-sm">
           <thead className="text-foreground">
             <tr>
-              <th className="text-left py-2">SKU</th>
               <th className="text-left py-2">Name</th>
               <th className="text-right py-2">Stock</th>
               <th className="text-right py-2">Price</th>
@@ -27,12 +23,11 @@ export const TableProducts = ({ query }: { query: string }) => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
+            {items.map((p) => (
               <tr
                 key={p._id}
                 className="border-t text-foreground! border-[#e6e6e640]"
               >
-                <td className="py-3">{p.sku}</td>
                 <td className="py-3">{p.name}</td>
                 <td
                   className={`py-3 text-right ${
@@ -47,9 +42,9 @@ export const TableProducts = ({ query }: { query: string }) => {
                 </td>
                 <td className="py-3 text-right">${p.price.toFixed(2)}</td>
                 <td className="py-3 text-center">
-                  <button className="px-3 py-1 rounded-md bg-primary hover:bg-slate-200">
-                    Add to cart
-                  </button>
+                  <Button variant="bordered" isIconOnly color="primary">
+                    <FiDelete />
+                  </Button>
                 </td>
               </tr>
             ))}

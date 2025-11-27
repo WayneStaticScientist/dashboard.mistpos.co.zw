@@ -1,39 +1,27 @@
 "use client";
+import { errorToast } from "@/utils/toaster";
 import { Button, Input } from "@heroui/react";
-import React, { useState, FormEvent } from "react";
 import { MdLock, MdMail } from "react-icons/md";
+import { decodeFromAxios } from "@/utils/errors";
+import React, { useState, FormEvent } from "react";
+import useSessionState from "@/stores/session-store";
 // Main Login Component
 const LoginApp: React.FC = () => {
+  const session = useSessionState();
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    // Basic Form Validation (can be expanded)
-    if (!email || !password) {
-      setError("Please enter both email and password.");
-      setIsLoading(false);
-      return;
+    try {
+      setError("");
+      await session.login(email, password);
+      window.location.href = "/";
+    } catch (e) {
+      setError(decodeFromAxios(e).message);
+      errorToast(decodeFromAxios(e).message);
     }
-
-    // Simulate an API call
-    console.log("Attempting login with:", { email, password });
-
-    setTimeout(() => {
-      setIsLoading(false);
-      // In a real LoginApplication, you would check credentials here.
-      if (email === "admin@mistpos.com" && password === "pos123") {
-        alert("Login successful! Redirecting...");
-        // window.location.href = '/dashboard'; // Example redirection
-      } else {
-        setError("Invalid credentials. Please try again.");
-      }
-    }, 1500);
   };
 
   return (
@@ -58,7 +46,7 @@ const LoginApp: React.FC = () => {
         {/* Error Message */}
         {error && (
           <div
-            className="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6 text-sm"
+            className="bg-red-100 my-3! mb-6! dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm"
             role="alert"
           >
             {error}
@@ -74,6 +62,7 @@ const LoginApp: React.FC = () => {
             placeholder="email"
             labelPlacement="outside"
             variant={"flat"}
+            onChange={(e) => setEmail(e.target.value)}
             startContent={<MdMail />}
           />
           <div className="h-1" />
@@ -83,13 +72,14 @@ const LoginApp: React.FC = () => {
             type="password"
             placeholder="password"
             labelPlacement="outside"
+            onChange={(e) => setPassword(e.target.value)}
             variant={"flat"}
             startContent={<MdLock />}
           />
           <Button
             type="submit"
             className="w-full"
-            isLoading={false}
+            isLoading={session.loading}
             color="primary"
           >
             Login
