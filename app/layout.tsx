@@ -1,8 +1,8 @@
 "use client";
-import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { HeroUIProvider } from "@heroui/react";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "next-themes";
+import { HeroUIProvider } from "@heroui/react";
 
 export default function RootLayout({
   children,
@@ -11,7 +11,10 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body className="w-screen! ">
         <HeroUIProvider>
           <ThemeProvider attribute={"class"} enableSystem={true}>
             {children}

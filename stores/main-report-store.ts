@@ -37,7 +37,11 @@ export const useMainReportStore = create<{
       id: string;
     }[];
   };
-  loadAdminStats: () => void;
+  loadAdminStats: (
+    startDate?: string,
+    endDate?: string,
+    weekEndDate?: string
+  ) => void;
 }>()(
   immer((set) => ({
     loaded: false,
@@ -69,8 +73,8 @@ export const useMainReportStore = create<{
           state.loading = true;
         });
         const [stats, sevenDayShow, items] = await Promise.all([
-          fetchStats(),
-          fetchSevenDayData(),
+          fetchStats(startDate),
+          fetchSevenDayData(weekEndDate),
           fetchItems({ limit: 5 }),
         ]);
         set((state) => {

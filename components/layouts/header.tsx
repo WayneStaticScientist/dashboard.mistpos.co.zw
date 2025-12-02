@@ -14,7 +14,7 @@ export default function Header({
 }) {
   const session = useSessionState();
   return (
-    <header className="sticky top-0 z-10 bg-background border-b">
+    <header className="sticky top-0 z-10 bg-background border-b w-full border-[#e8e8e820]">
       <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-3">
           <button

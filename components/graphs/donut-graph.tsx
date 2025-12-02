@@ -128,11 +128,11 @@ export const CircularWheelChart = ({
     0
   );
   return (
-    <div className={className}>
-      <h2 className="text-xl  text-foreground mb-6 text-center w-[200px]">
+    <div className={`${className}  flex items-center flex-col`}>
+      <h2 className="md:text-xl  text-foreground mb-6 text-center text-xs w-[100px]  md:w-[200px]">
         {label}
       </h2>
-      <div className="w-[200px] h-[200px] relative">
+      <div className="w-[100px] h-[100px] md:w-[200px] md:h-[200px] relative">
         <Doughnut
           data={{
             labels: chartData.map((e) => e.name),

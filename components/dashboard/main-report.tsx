@@ -19,12 +19,12 @@ import { useMainReportStore } from "@/stores/main-report-store";
 import { MaterialColors } from "@/utils/colors";
 import { toLocalCurrency } from "@/utils/currencies";
 import { BiSearchAlt } from "react-icons/bi";
+import { errorToast } from "@/utils/toaster";
 export const MainReport = () => {
   const report = useMainReportStore();
   const [query, setQuery] = useState("");
   const [endDate, setEndDate] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [cart, setCart] = useState<TProduct[]>([]);
   const [weekEndDate, setWeekEndDate] = useState("");
   useEffect(() => {
     report.loadAdminStats();
@@ -57,27 +57,37 @@ export const MainReport = () => {
       ? Math.abs(report.salesStates.totalSalesValue)
       : 1);
   return (
-    <main className="p-4 bg-background">
-      {/* KPI Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-center justify-center">
+    <>
+      <section className=" grid grid-cols-5   gap-4 mb-4 items-center justify-center">
         <Input
           type="date"
+          className=" col-span-2"
           label="start date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
         />
         <Input
+          className=" col-span-2"
           type="date"
           label="end date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
-        <Button color="primary" variant="bordered" isIconOnly>
+        <Button
+          color="primary"
+          variant="bordered"
+          isIconOnly
+          onPress={() => {
+            report.loadAdminStats(startDate, endDate, weekEndDate);
+          }}
+        >
           <BiSearchAlt />
         </Button>
       </section>
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+
+      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-center justify-center">
         <CircularWheelChart
+          className=""
           label={"Total Sales/Cost/Discounts"}
           chartData={[
             {
@@ -131,7 +141,7 @@ export const MainReport = () => {
         />
       </section>
       <span className="flex text-white my-2 mt-4">Products Reports</span>
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <CardOverview
           label={"Total Revenue"}
           increaseValue={`${revenueMargin.toFixed(2)}% margin`}
@@ -158,7 +168,7 @@ export const MainReport = () => {
         />
       </section>
       <span className="flex text-white my-2 mt-4">Sales Reports</span>
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <CardOverview
           label={"Profit"}
           increaseValue={`${profitMargin.toFixed(2)}% gain`}
@@ -198,14 +208,24 @@ export const MainReport = () => {
           value={report.salesStates.numberOfCashiers.toString()}
         />
       </section>
-      <section className="my-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-center justify-center">
+      <section className="my-12 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-center justify-center">
         <Input
           type="date"
           label="Weekly Report From"
           value={weekEndDate}
           onChange={(e) => setWeekEndDate(e.target.value)}
         />
-        <Button color="primary" variant="bordered" isIconOnly>
+        <Button
+          color="primary"
+          variant="bordered"
+          isIconOnly
+          onPress={() => {
+            if (weekEndDate.trim() == "") {
+              return errorToast("Anchor date not specified");
+            }
+            report.loadAdminStats(startDate, endDate, weekEndDate);
+          }}
+        >
           <BiSearchAlt />
         </Button>
       </section>
@@ -232,6 +252,6 @@ export const MainReport = () => {
           <span>POS</span>
         </button>
       </nav> */}
-    </main>
+    </>
   );
 };
