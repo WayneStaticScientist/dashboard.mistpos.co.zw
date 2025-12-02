@@ -6,15 +6,15 @@ import { Fragment } from "react/jsx-runtime";
 import NormalError from "../errors/normal-errror";
 import { toLocalCurrency } from "@/utils/currencies";
 import { NormalLoader } from "../loaders/normal-loader";
-import { useEmployeeSalesReport } from "@/stores/employee-sales-store";
 import {
   MistTable,
   MistTableListHeaders,
   MistTableListRows,
 } from "../layouts/table-header";
+import { usePaymentSalesStore } from "@/stores/payment-sales-store";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const SalesByEmployeeReport = () => {
-  const employeeSalesReport = useEmployeeSalesReport();
+export const SalesByPaymentReport = () => {
+  const paymentSalesStore = usePaymentSalesStore();
   const [endDate, setEndDate] = useState("");
   const [startDate, setStartDate] = useState("");
   useEffect(() => {
@@ -29,15 +29,15 @@ export const SalesByEmployeeReport = () => {
 
     setStartDate(formattedStartDate);
     setEndDate(formattedEndDate);
-    employeeSalesReport.loadEmployeeSalesStats(
+    paymentSalesStore.loadEmployeeSalesStats(
       startDateData.toISOString(),
       endDateData.toISOString()
     );
   }, []);
-  if (employeeSalesReport.loading) {
+  if (paymentSalesStore.loading) {
     return <NormalLoader />;
   }
-  if (!employeeSalesReport.loaded) {
+  if (!paymentSalesStore.loaded) {
     return <NormalError message="failed to load sales report" />;
   }
   return (
@@ -62,7 +62,7 @@ export const SalesByEmployeeReport = () => {
           variant="bordered"
           isIconOnly
           onPress={() => {
-            employeeSalesReport.loadEmployeeSalesStats(startDate, endDate);
+            paymentSalesStore.loadEmployeeSalesStats(startDate, endDate);
           }}
         >
           <BiSearchAlt />
@@ -71,33 +71,35 @@ export const SalesByEmployeeReport = () => {
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
-            <h2 className="font-semibold">Employees Report</h2>
+            <h2 className="font-semibold">Sales Payment Report</h2>
             <div className="text-sm text-foreground">
-              {employeeSalesReport.list.length} items
+              {paymentSalesStore.list.length} items
             </div>
           </div>
           <div className="p-4 overflow-x-auto">
             <MistTable>
               <MistTableListHeaders
                 headers={[
-                  "Name",
+                  "Payment Method",
                   "Gross Sales",
                   "Average Sales",
                   "Discounts",
                   "Refunds",
+                  "Receipts",
                   "Customers",
                 ]}
               />
               <tbody>
-                {employeeSalesReport.list.map((p, id) => (
+                {paymentSalesStore.list.map((p, id) => (
                   <MistTableListRows
                     key={id}
                     rows={[
-                      p.sellerName,
+                      p.paymentMethod,
                       toLocalCurrency(p.grossSales),
-                      toLocalCurrency(p.averageSales),
+                      toLocalCurrency(p.averageSalesPerReceipt),
                       toLocalCurrency(p.discounts),
                       toLocalCurrency(p.refunds),
+                      p.numberOfReceipts.toString(),
                       p.uniqueCustomerCount.toString(),
                     ]}
                   />

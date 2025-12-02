@@ -133,7 +133,9 @@ const NavItem: React.FC<
   // Regular Nav Item (Non-collapsible)
   return (
     <a
-      onClick={() => setCurrentPage(page)}
+      onClick={() => {
+        setCurrentPage(page);
+      }}
       className={`flex items-center w-full p-2 text-sm font-medium text-foreground cursor-pointer
          hover:text-primary rounded-lg transition duration-150 ${
            currentPage == page ? "bg-[#e6e6e640]" : ""

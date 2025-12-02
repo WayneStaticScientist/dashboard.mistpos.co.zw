@@ -1,14 +1,12 @@
-import { SyncLoader } from "react-spinners";
+import { Spinner } from "@heroui/react";
 
 export const NormalLoader = () => {
   return (
     <div className="w-full h-full  z-50 bg-background flex items-center justify-center">
-      <SyncLoader
-        color="#aa00bb"
-        loading={true}
-        size={14}
-        aria-label="Loading Spinner"
-        data-testid="loader"
+      <Spinner
+        classNames={{ label: "text-foreground mt-4" }}
+        label="loading"
+        variant="wave"
       />
     </div>
   );

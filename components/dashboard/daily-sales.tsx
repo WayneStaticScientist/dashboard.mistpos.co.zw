@@ -7,6 +7,10 @@ import { Fragment } from "react/jsx-runtime";
 import { NormalLoader } from "../loaders/normal-loader";
 import NormalError from "../errors/normal-errror";
 import { toLocalCurrency } from "@/utils/currencies";
+import {
+  MistTableListHeaders,
+  MistTableListRows,
+} from "../layouts/table-header";
 
 export const DailySalesReport = () => {
   const dailySales = useDailySalesReport();
@@ -54,38 +58,29 @@ export const DailySalesReport = () => {
         </Button>
       </section>
       <section>
-        <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm ">
           <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
             <h2 className="font-semibold">Sales Report</h2>
             <div className="text-sm text-foreground">
               {dailySales.items.length} items
             </div>
           </div>
-          <div className="p-4 overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="text-foreground">
-                <tr>
-                  <th className="text-left py-2">Name</th>
-                  <th className="text-right py-2">Total Cost</th>
-                  <th className="text-right py-2">Total Sales</th>
-                  <th className="text-center py-2">Products Sold</th>
-                </tr>
-              </thead>
+          <div className="p-4 overflow-x-auto w-full">
+            <table className="text-sm table-auto w-max ">
+              <MistTableListHeaders
+                headers={["Name", "Total Cost", "Total Sales", "Products Sold"]}
+              />
               <tbody>
-                {dailySales.items.map((p) => (
-                  <tr
-                    key={p.productId}
-                    className="border-t text-foreground! border-[#e6e6e640]"
-                  >
-                    <td className="py-3">{p.productName}</td>
-                    <td className={`py-3 text-right`}>
-                      {toLocalCurrency(p.totalCosts)}
-                    </td>
-                    <td className="py-3 text-right">
-                      {toLocalCurrency(p.totalSales)}
-                    </td>
-                    <td className="py-3 text-center">{p.totalCount}</td>
-                  </tr>
+                {dailySales.items.map((p, index) => (
+                  <MistTableListRows
+                    key={index}
+                    rows={[
+                      p.productName,
+                      toLocalCurrency(p.totalCosts),
+                      toLocalCurrency(p.totalSales),
+                      p.totalCount.toString(),
+                    ]}
+                  />
                 ))}
               </tbody>
             </table>
