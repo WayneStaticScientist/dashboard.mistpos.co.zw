@@ -107,7 +107,6 @@ export const MistBarGraph: React.FC = () => {
                 y: {
                   beginAtZero: true,
                   min: 0,
-                  max: 100,
                   ticks: {
                     stepSize: 10,
                     font: {

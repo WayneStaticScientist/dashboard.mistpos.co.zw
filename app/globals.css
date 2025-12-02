@@ -14,10 +14,35 @@
   --color-focus: 215 78 50; /* For input focus rings */
 }
 /* globals.css or equivalent */
+html,
+body {
+  /* CRITICAL: Ensures the root elements take up the full viewport */
+  height: 100vh;
+  width: 100vw;
 
+  /* CRITICAL: Prevents horizontal scrollbar from appearing */
+  /* Even if margin: 0 is set, this is a strong defense */
+  overflow-x: hidden;
+}
 /* Define the Green Palette (as HSL values: H S L) */
 /* This is an example, you can adjust the HSL values for your preferred green */
-
+* {
+  scrollbar-color: #040f0009;
+  scrollbar-width: 1px;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track:vertical {
+  width: 1;
+  background-color: #040f0009;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-track {
+  width: 1;
+  background-color: #040f0003;
+  border-radius: 5px;
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
