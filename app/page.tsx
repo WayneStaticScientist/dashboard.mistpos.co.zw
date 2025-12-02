@@ -5,15 +5,15 @@ import SideBar from "@/components/layouts/side-bar";
 import useSessionState from "@/stores/session-store";
 import { MistNavigation } from "@/router/page-navigation";
 import { CenterLoader } from "@/components/loaders/center-loader";
+import { useNavigation } from "@/stores/use-navigation";
 
 export default function Dashboard() {
   const session = useSessionState();
   useEffect(() => {
     session.getSessionState();
   }, []);
-  const [page, setPage] = useState("main");
+  const navigation = useNavigation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <>
       {session.sesionLoading && <CenterLoader />}
@@ -21,9 +21,9 @@ export default function Dashboard() {
         <div className="min-h-screen bg-background text-foreground w-screen">
           <div className="flex">
             <SideBar
-              currentPage={page}
+              currentPage={navigation.page}
               setCurrentPage={(page) => {
-                setPage(page);
+                navigation.setPage(page);
                 setSidebarOpen(false);
               }}
               sidebarOpen={sidebarOpen}
@@ -35,7 +35,7 @@ export default function Dashboard() {
                 setSidebarOpen={setSidebarOpen}
               />
               <main className="p-4 bg-background h-full w-full overflow-x-auto">
-                <MistNavigation path={page} />
+                <MistNavigation path={navigation.page} />
               </main>
             </div>
           </div>
