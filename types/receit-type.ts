@@ -1,13 +1,15 @@
 export type TReceitItem = {
+  _id: string;
   name: string;
   cost: number;
   count: number;
   price: number;
   itemId: string;
   addenum: number;
+  createAt: string;
   discount: number;
-  discountId: string;
   refunded: boolean;
+  discountId: string;
   originalCount: number;
   rejectedReason: string;
   percentageDiscount: boolean;

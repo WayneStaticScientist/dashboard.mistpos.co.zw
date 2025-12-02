@@ -6,15 +6,15 @@ import { Fragment } from "react/jsx-runtime";
 import NormalError from "../errors/normal-errror";
 import { toLocalCurrency } from "@/utils/currencies";
 import { NormalLoader } from "../loaders/normal-loader";
-import { useEmployeeSalesReport } from "@/stores/employee-sales-store";
 import {
   MistTable,
   MistTableListHeaders,
   MistTableListRows,
 } from "../layouts/table-header";
+import { useShiftsStore } from "@/stores/shifts-stores";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const SalesByEmployeeReport = () => {
-  const employeeSalesReport = useEmployeeSalesReport();
+export const ShiftsNav = () => {
+  const shifts = useShiftsStore();
   const [endDate, setEndDate] = useState("");
   const [startDate, setStartDate] = useState("");
   useEffect(() => {
@@ -29,15 +29,15 @@ export const SalesByEmployeeReport = () => {
 
     setStartDate(formattedStartDate);
     setEndDate(formattedEndDate);
-    employeeSalesReport.loadEmployeeSalesStats(
+    shifts.loadEmployeeSalesStats(
       startDateData.toISOString(),
       endDateData.toISOString()
     );
   }, []);
-  if (employeeSalesReport.loading) {
+  if (shifts.loading) {
     return <NormalLoader />;
   }
-  if (!employeeSalesReport.loaded) {
+  if (!shifts.loaded) {
     return <NormalError message="failed to load sales report" />;
   }
   return (
@@ -62,7 +62,7 @@ export const SalesByEmployeeReport = () => {
           variant="bordered"
           isIconOnly
           onPress={() => {
-            employeeSalesReport.loadEmployeeSalesStats(startDate, endDate);
+            shifts.loadEmployeeSalesStats(startDate, endDate);
           }}
         >
           <BiSearchAlt />
@@ -71,34 +71,34 @@ export const SalesByEmployeeReport = () => {
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
-            <h2 className="font-semibold">Employees Report</h2>
+            <h2 className="font-semibold">Employees shifts Report</h2>
             <div className="text-sm text-foreground">
-              {employeeSalesReport.list.length} items
+              {shifts.list.length} items
             </div>
           </div>
           <div className="p-4 overflow-x-auto">
             <MistTable>
               <MistTableListHeaders
                 headers={[
-                  "Name",
-                  "Gross Sales",
+                  "Employee",
+                  "Total Shift(hrs)",
+                  "# Shifts",
+                  "Total Sales",
+                  "Sales Qauntity",
                   "Average Sales",
-                  "Discounts",
-                  "Refunds",
-                  "Customers",
                 ]}
               />
               <tbody>
-                {employeeSalesReport.list.map((p, id) => (
+                {shifts.list.map((p, id) => (
                   <MistTableListRows
                     key={id}
                     rows={[
-                      p.sellerName,
-                      toLocalCurrency(p.grossSales),
-                      toLocalCurrency(p.averageSales),
-                      toLocalCurrency(p.discounts),
-                      toLocalCurrency(p.refunds),
-                      p.uniqueCustomerCount.toString(),
+                      p.userName,
+                      p.totalShiftHours.toFixed(2),
+                      p.numberOfShifts.toString(),
+                      toLocalCurrency(p.totalSales),
+                      p.totalSalesQuantity.toString(),
+                      toLocalCurrency(p.averageSalePerShift),
                     ]}
                   />
                 ))}

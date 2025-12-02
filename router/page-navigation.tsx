@@ -1,10 +1,16 @@
-import { DailySalesReport } from "@/components/dashboard/daily-sales";
+import { ShiftsNav } from "@/components/dashboard/shifts";
 import { MainReport } from "@/components/dashboard/main-report";
+import { DailySalesReport } from "@/components/dashboard/daily-sales";
+import { SalesByPaymentReport } from "@/components/dashboard/sales-by-payment";
 import { SalesByEmployeeReport } from "@/components/dashboard/sales-by-employee";
+import { ReceitsNav } from "@/components/dashboard/receits-view";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
+  shifts: ShiftsNav,
+  receits: ReceitsNav,
   dailySales: DailySalesReport,
+  paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,
 };
 

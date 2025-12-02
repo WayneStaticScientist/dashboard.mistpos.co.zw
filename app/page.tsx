@@ -18,20 +18,23 @@ export default function Dashboard() {
     <>
       {session.sesionLoading && <CenterLoader />}
       {!session.sesionLoading && session.email.length > 0 && (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background text-foreground w-screen">
           <div className="flex">
             <SideBar
               currentPage={page}
-              setCurrentPage={setPage}
+              setCurrentPage={(page) => {
+                setPage(page);
+                setSidebarOpen(false);
+              }}
               sidebarOpen={sidebarOpen}
               setSibeBarOpen={setSidebarOpen}
             />
-            <div className="flex-1 min-h-screen md:pl-72 ">
+            <div className="flex-1 min-h-screen md:pl-72 w-full">
               <Header
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
               />
-              <main className="p-4 bg-background w-full h-full">
+              <main className="p-4 bg-background h-full w-full overflow-x-auto">
                 <MistNavigation path={page} />
               </main>
             </div>
