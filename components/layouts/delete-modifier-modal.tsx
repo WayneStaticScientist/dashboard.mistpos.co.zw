@@ -8,28 +8,26 @@ import {
   Button,
 } from "@heroui/react";
 import { Fragment } from "react";
-import { TProduct } from "@/types/product-t";
-import { useProductState } from "@/stores/use-product-state";
-import { useProductsStore } from "@/stores/product-stores";
 import { errorToast } from "@/utils/toaster";
+import { TModifier } from "@/types/modefier-t";
 import { decodeFromAxios } from "@/utils/errors";
 import { NormalLoader } from "../loaders/normal-loader";
-export const DeleteProductModal = ({
-  product,
+import { useMofiersStore } from "@/stores/modifiers-store";
+export const DeleteModifierModal = ({
+  modifier,
   onCloseModal,
 }: {
-  product?: TProduct | null;
+  modifier?: TModifier | null;
   onCloseModal?: () => void;
 }) => {
   const { onClose } = useDisclosure();
-  const products = useProductsStore();
-  const useProduct = useProductState();
+  const modifiers = useMofiersStore();
   return (
     <>
       <Modal
         scrollBehavior="outside"
         backdrop={"opaque"}
-        isOpen={product != null}
+        isOpen={modifier != null}
         onClose={() => {
           onCloseModal?.();
           onClose();
@@ -40,13 +38,13 @@ export const DeleteProductModal = ({
             <Fragment>
               <ModalBody>
                 <ModalHeader className="flex flex-col gap-1">
-                  Delete {product?.name}
+                  Delete {modifier?.name}
                 </ModalHeader>
                 <ModalBody className="gap-4">
-                  {useProduct.loading ? (
+                  {modifiers.loading ? (
                     <NormalLoader />
                   ) : (
-                    ` Are you sure to delete ${product?.name}?`
+                    ` Are you sure to delete ${modifier?.name}?`
                   )}
                 </ModalBody>
                 <ModalFooter>
@@ -57,10 +55,10 @@ export const DeleteProductModal = ({
                     color="danger"
                     onPress={async () => {
                       try {
-                        await useProduct.deleteProduct(product!);
+                        await modifiers.deleteModifier(modifier!);
                         onCloseModal?.();
                         onClose();
-                        products.fetchProducts(1);
+                        modifiers.fetchModifiers(1);
                       } catch (e) {
                         errorToast(decodeFromAxios(e).message);
                       }

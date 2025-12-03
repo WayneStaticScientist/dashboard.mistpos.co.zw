@@ -1,22 +1,22 @@
 import { create } from "zustand";
-import { errorToast, success } from "@/utils/toaster";
 import apiClient from "@/services/api-client";
-import { TCategory } from "@/types/category-t";
-import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
+import { immer } from "zustand/middleware/immer";
+import { errorToast, success } from "@/utils/toaster";
+import { TDiscount } from "@/types/discount-t";
 
-export const useCategoriesStore = create<{
-  updateCategory: (localCategory: TCategory) => void;
-  createCategory: (localCategory: TCategory) => void;
-  focusedCategory?: TCategory;
-  setCategoryForEdit: (e: TCategory) => void;
-  deleteCategory: (arg0: TCategory) => void;
+export const useDiscountsStore = create<{
+  updateDiscount: (localDiscount: TDiscount) => void;
+  createDiscount: (localDiscount: TDiscount) => void;
+  focusedDiscount?: TDiscount;
+  setDiscountForEdit: (e: TDiscount) => void;
+  deleteDiscount: (arg0: TDiscount) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
-  list: TCategory[];
+  list: TDiscount[];
   totalPages: number;
-  fetchCategories: (page: number, search?: string) => void;
+  fetchDiscounts: (page: number, search?: string) => void;
 }>()(
   immer((set) => ({
     page: 0,
@@ -24,13 +24,13 @@ export const useCategoriesStore = create<{
     loading: true,
     loaded: false,
     list: [],
-    updateCategory: (localCategory: TCategory) => {
+    updateDiscount: (localDiscount: TDiscount) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        apiClient.put(`/admin/category/${localCategory._id}`, localCategory);
-        success(`${localCategory.name} Updated successffuly`);
+        apiClient.put(`/admin/discount/${localDiscount._id}`, localDiscount);
+        success(`${localDiscount.name} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -39,14 +39,14 @@ export const useCategoriesStore = create<{
         });
       }
     },
-    createCategory: async (localCategory: TCategory) => {
+    createDiscount: async (localDiscount: TDiscount) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        localCategory._id = null;
-        await apiClient.post(`/admin/category`, localCategory);
-        success(`${localCategory.name} Created successffuly`);
+        localDiscount._id = null;
+        await apiClient.post(`/admin/discount`, localDiscount);
+        success(`${localDiscount.name} Created successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -55,17 +55,17 @@ export const useCategoriesStore = create<{
         });
       }
     },
-    setCategoryForEdit: (e: TCategory) => {
+    setDiscountForEdit: (e: TDiscount) => {
       set((state) => {
-        state.focusedCategory = e;
+        state.focusedDiscount = e;
       });
     },
-    deleteCategory: async (arg0: TCategory) => {
+    deleteDiscount: async (arg0: TDiscount) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        await apiClient.delete(`/admin/category/${arg0._id}`);
+        await apiClient.delete(`/admin/discount/${arg0._id}`);
         success(`${arg0.name} Deleted successffuly`);
         set((state) => {
           state.loading = false;
@@ -77,13 +77,13 @@ export const useCategoriesStore = create<{
         throw e;
       }
     },
-    fetchCategories: async (page: number, search?: string) => {
+    fetchDiscounts: async (page: number, search?: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/cashier/categories?limit=100&search=${search ?? ""}&page=${page}`
+          `/cashier/discounts?limit=100&search=${search ?? ""}&page=${page}`
         );
         set((state) => {
           state.loading = false;

@@ -1,8 +1,11 @@
 "use client";
 import { TProduct } from "@/types/product-t";
 import {
+  Button,
   Checkbox,
   Input,
+  Navbar,
+  NavbarBrand,
   Select,
   SelectItem,
   Table,
@@ -12,15 +15,36 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
+import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
+import { MaterialColors } from "@/utils/colors";
+import { useNavigation } from "@/stores/use-navigation";
 import { FC, Fragment, useEffect, useState } from "react";
 import { useProductsStore } from "@/stores/product-stores";
+import { useInvSelect } from "@/stores/use-inv-select-store";
+import { useProductState } from "@/stores/use-product-state";
 import { useCategoriesStore } from "@/stores/categories-store";
-import { toBaseCurrence, toLocalCurrency } from "@/utils/currencies";
 import { MistDivider } from "@/components/layouts/mist-divider";
+import { MistIconButton } from "@/components/buttons/icon-button";
+import { MistColorButton } from "@/components/buttons/color-button";
+import {
+  toBaseCurrence,
+  toLocalCurrenceString,
+  toLocalCurrency,
+} from "@/utils/currencies";
+import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
+import { useMofiersStore } from "@/stores/modifiers-store";
+import { NormalLoader } from "@/components/loaders/normal-loader";
+import useSessionState from "@/stores/session-store";
 
 export const ItemModelEdit: FC = () => {
+  const invStore = useInvSelect();
+  const session = useSessionState();
+  const navigation = useNavigation();
+  const modifiers = useMofiersStore();
+  const productState = useProductState();
   const categories = useCategoriesStore();
   const selectedProduct = useProductsStore();
+  const [invSelectorOpen, setInvSelectorOpen] = useState(false);
   const [localProduct, setLocalProduct] = useState<TProduct | null>(
     selectedProduct.focusedProduct || null
   );
@@ -32,6 +56,11 @@ export const ItemModelEdit: FC = () => {
     }
   };
   useEffect(() => {
+    modifiers.fetchModifiers(1);
+    categories.fetchCategories(1);
+  }, []);
+  useEffect(() => {
+    invStore.setList(selectedProduct?.focusedProduct?.compositeItems || []);
     initializeLocalProduct(selectedProduct.focusedProduct);
   }, [selectedProduct.focusedProduct]);
   return (
@@ -39,6 +68,21 @@ export const ItemModelEdit: FC = () => {
       {localProduct == null && "Something went wrong"}
       {localProduct && (
         <div className=" max-w-2xl w-full gap-4 flex flex-col">
+          <Navbar>
+            <NavbarBrand
+              className=" cursor-pointer select-none"
+              onClick={() => navigation.back()}
+            >
+              <IoIosArrowBack />
+              <p className="font-bold text-inherit ml-3">Edit Item</p>
+            </NavbarBrand>
+          </Navbar>
+          <InvSelectionModal
+            open={invSelectorOpen}
+            onCloseModal={() => {
+              setInvSelectorOpen(false);
+            }}
+          />
           <div className="font-bold text-xl"> {localProduct.name}</div>
           <Input
             label="Item Name"
@@ -92,8 +136,9 @@ export const ItemModelEdit: FC = () => {
                 Weight
               </Checkbox>
               <Input
-                value={toLocalCurrency(localProduct.price)}
+                value={toLocalCurrenceString(localProduct.price)}
                 label="Price"
+                startContent={session.baseCurrence ?? "USD"}
                 onChange={(e) => {
                   setLocalProduct({
                     ...localProduct!,
@@ -103,8 +148,9 @@ export const ItemModelEdit: FC = () => {
               />
               {!localProduct.isCompositeItem && (
                 <Input
-                  value={toLocalCurrency(localProduct.cost)}
+                  value={toLocalCurrenceString(localProduct.cost)}
                   label="Cost"
+                  startContent={session.baseCurrence ?? "USD"}
                   onChange={(e) => {
                     setLocalProduct({
                       ...localProduct!,
@@ -203,19 +249,120 @@ export const ItemModelEdit: FC = () => {
           {localProduct.isCompositeItem && (
             <Table aria-label="Example static collection table">
               <TableHeader>
-                <TableColumn>NAME</TableColumn>
-                <TableColumn>ROLE</TableColumn>
-                <TableColumn>STATUS</TableColumn>
+                <TableColumn>Name</TableColumn>
+                <TableColumn>Cost</TableColumn>
+                <TableColumn>Quantity</TableColumn>
+                <TableColumn>
+                  <Button
+                    isIconOnly
+                    color="primary"
+                    variant="bordered"
+                    onPress={() => setInvSelectorOpen(true)}
+                  >
+                    <IoMdAdd />
+                  </Button>
+                </TableColumn>
               </TableHeader>
               <TableBody>
-                <TableRow key="1">
-                  <TableCell>Tony Reichert</TableCell>
-                  <TableCell>CEO</TableCell>
-                  <TableCell>Active</TableCell>
-                </TableRow>
+                {invStore.list.map((item, key) => (
+                  <TableRow key={key}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{toLocalCurrency(item.cost)}</TableCell>
+                    <TableCell>
+                      <Input
+                        value={item.quantity.toString()}
+                        onChange={(e) => {
+                          let newQuantity = e.target.value;
+                          if (isNaN(Number(newQuantity))) {
+                            newQuantity = "0";
+                          }
+                          const updatedCompositeItems = invStore!.list.map(
+                            (compItem) =>
+                              compItem.id === item.id
+                                ? {
+                                    ...compItem,
+                                    quantity: Number(newQuantity),
+                                  }
+                                : compItem // Keep other items unchanged
+                          );
+
+                          invStore.setList(updatedCompositeItems);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>{""}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
+          <MistDivider />
+          Modifiers
+          {modifiers.loading && <NormalLoader />}
+          {modifiers.list.map((modifier) => (
+            <div key={modifier._id}>
+              <Checkbox
+                isSelected={localProduct.modifiers.includes(modifier._id)}
+                onValueChange={(e) => {
+                  if (e) {
+                    setLocalProduct({
+                      ...localProduct!,
+                      modifiers: [...localProduct!.modifiers, modifier._id],
+                    });
+                  } else {
+                    setLocalProduct({
+                      ...localProduct!,
+                      modifiers: localProduct!.modifiers.filter(
+                        (id) => id != modifier._id
+                      ),
+                    });
+                  }
+                }}
+              >
+                {modifier.name}
+              </Checkbox>
+            </div>
+          ))}
+          <MistDivider />
+          Item Apperance On PosScreen
+          <span>Pick Color</span>
+          <div className="flex flex-wrap gap-1">
+            {MaterialColors.listColors.map((color) => (
+              <MistColorButton
+                color={color}
+                onPress={() => {
+                  setLocalProduct({
+                    ...localProduct!,
+                    color,
+                  });
+                }}
+                selected={localProduct?.color == color}
+              />
+            ))}
+          </div>
+          <span>Pick Shape</span>
+          <div className="flex flex-wrap gap-1">
+            {MaterialColors.listIcons.map((svg) => (
+              <MistIconButton
+                color={localProduct.color}
+                onPress={() => {
+                  setLocalProduct({
+                    ...localProduct!,
+                    shape: svg,
+                  });
+                }}
+                selected={localProduct?.shape == svg}
+                svg={svg}
+              />
+            ))}
+          </div>
+          <Button
+            color="primary"
+            isLoading={productState.loading}
+            onPress={() => productState.updateProduct(localProduct)}
+          >
+            Update Item{" "}
+          </Button>
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 export type TCategory = {
-  _id: string;
+  _id: any;
   name: string;
   color: number;
   company: string;

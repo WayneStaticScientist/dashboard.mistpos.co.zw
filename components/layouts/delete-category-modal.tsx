@@ -8,28 +8,26 @@ import {
   Button,
 } from "@heroui/react";
 import { Fragment } from "react";
-import { TProduct } from "@/types/product-t";
-import { useProductState } from "@/stores/use-product-state";
-import { useProductsStore } from "@/stores/product-stores";
 import { errorToast } from "@/utils/toaster";
+import { TCategory } from "@/types/category-t";
 import { decodeFromAxios } from "@/utils/errors";
 import { NormalLoader } from "../loaders/normal-loader";
-export const DeleteProductModal = ({
-  product,
+import { useCategoriesStore } from "@/stores/categories-store";
+export const DeleteCategoryModal = ({
+  category,
   onCloseModal,
 }: {
-  product?: TProduct | null;
+  category?: TCategory | null;
   onCloseModal?: () => void;
 }) => {
   const { onClose } = useDisclosure();
-  const products = useProductsStore();
-  const useProduct = useProductState();
+  const categories = useCategoriesStore();
   return (
     <>
       <Modal
         scrollBehavior="outside"
         backdrop={"opaque"}
-        isOpen={product != null}
+        isOpen={category != null}
         onClose={() => {
           onCloseModal?.();
           onClose();
@@ -40,13 +38,13 @@ export const DeleteProductModal = ({
             <Fragment>
               <ModalBody>
                 <ModalHeader className="flex flex-col gap-1">
-                  Delete {product?.name}
+                  Delete {category?.name}
                 </ModalHeader>
                 <ModalBody className="gap-4">
-                  {useProduct.loading ? (
+                  {categories.loading ? (
                     <NormalLoader />
                   ) : (
-                    ` Are you sure to delete ${product?.name}?`
+                    ` Are you sure to delete ${category?.name}?`
                   )}
                 </ModalBody>
                 <ModalFooter>
@@ -57,10 +55,10 @@ export const DeleteProductModal = ({
                     color="danger"
                     onPress={async () => {
                       try {
-                        await useProduct.deleteProduct(product!);
+                        await categories.deleteCategory(category!);
                         onCloseModal?.();
                         onClose();
-                        products.fetchProducts(1);
+                        categories.fetchCategories(1);
                       } catch (e) {
                         errorToast(decodeFromAxios(e).message);
                       }

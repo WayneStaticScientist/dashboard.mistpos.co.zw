@@ -37,28 +37,26 @@ export const ReceitsNav = () => {
         receit={selectedReceit}
         onCloseModal={() => setSelectedReceit(null)}
       />
-      <section className=" grid grid-cols-5   gap-4 mb-4 items-center justify-center">
-        <div className="relative bg-[#e6e6e617] rounded-2xl">
-          <input
-            placeholder="Search Receit"
-            onKeyDown={(e) => {
-              if (e.key != "Enter") return;
-              e.preventDefault();
-              if (searchInput.trim() != "") {
-                receits.fetchReceits(1, searchInput);
-              } else {
-                return errorToast("cant search empty receits");
-              }
-            }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-10 pr-4 py-2 rounded-md  w-full md:w-72 text-foreground active:border-0 focus:border-0  outline-0
+      <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
+        <input
+          placeholder="Search Receit"
+          onKeyDown={(e) => {
+            if (e.key != "Enter") return;
+            e.preventDefault();
+            if (searchInput.trim() != "") {
+              receits.fetchReceits(1, searchInput);
+            } else {
+              return errorToast("cant search empty receits");
+            }
+          }}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="pl-10 pr-4 py-2 rounded-md  w-full md:w-72 text-foreground active:border-0 focus:border-0  outline-0
                active:outline-1 focus:outline-0"
-            aria-label="Search Receit"
-          />
-          <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
-        </div>
-      </section>
+          aria-label="Search Receit"
+        />
+        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
+      </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">

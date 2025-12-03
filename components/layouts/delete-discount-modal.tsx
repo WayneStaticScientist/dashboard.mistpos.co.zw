@@ -8,28 +8,26 @@ import {
   Button,
 } from "@heroui/react";
 import { Fragment } from "react";
-import { TProduct } from "@/types/product-t";
-import { useProductState } from "@/stores/use-product-state";
-import { useProductsStore } from "@/stores/product-stores";
 import { errorToast } from "@/utils/toaster";
+import { TDiscount } from "@/types/discount-t";
 import { decodeFromAxios } from "@/utils/errors";
 import { NormalLoader } from "../loaders/normal-loader";
-export const DeleteProductModal = ({
-  product,
+import { useDiscountsStore } from "@/stores/discount-store";
+export const DeleteDiscountModal = ({
+  discount,
   onCloseModal,
 }: {
-  product?: TProduct | null;
+  discount?: TDiscount | null;
   onCloseModal?: () => void;
 }) => {
   const { onClose } = useDisclosure();
-  const products = useProductsStore();
-  const useProduct = useProductState();
+  const discounts = useDiscountsStore();
   return (
     <>
       <Modal
         scrollBehavior="outside"
         backdrop={"opaque"}
-        isOpen={product != null}
+        isOpen={discount != null}
         onClose={() => {
           onCloseModal?.();
           onClose();
@@ -40,13 +38,13 @@ export const DeleteProductModal = ({
             <Fragment>
               <ModalBody>
                 <ModalHeader className="flex flex-col gap-1">
-                  Delete {product?.name}
+                  Delete {discount?.name}
                 </ModalHeader>
                 <ModalBody className="gap-4">
-                  {useProduct.loading ? (
+                  {discounts.loading ? (
                     <NormalLoader />
                   ) : (
-                    ` Are you sure to delete ${product?.name}?`
+                    ` Are you sure to delete ${discount?.name}?`
                   )}
                 </ModalBody>
                 <ModalFooter>
@@ -57,10 +55,10 @@ export const DeleteProductModal = ({
                     color="danger"
                     onPress={async () => {
                       try {
-                        await useProduct.deleteProduct(product!);
+                        await discounts.deleteDiscount(discount!);
                         onCloseModal?.();
                         onClose();
-                        products.fetchProducts(1);
+                        discounts.fetchDiscounts(1);
                       } catch (e) {
                         errorToast(decodeFromAxios(e).message);
                       }

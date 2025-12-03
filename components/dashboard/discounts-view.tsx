@@ -4,7 +4,6 @@ import { Fragment } from "react/jsx-runtime";
 import NormalError from "../errors/normal-errror";
 import { NormalLoader } from "../loaders/normal-loader";
 import { MagnifyingGlassIcon as IconSearch } from "@heroicons/react/24/outline";
-
 import {
   Button,
   Pagination,
@@ -17,45 +16,41 @@ import {
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
-import { errorToast } from "@/utils/toaster";
-import { toLocalCurrency } from "@/utils/currencies";
-import { useProductsStore } from "@/stores/product-stores";
-import { getStockTrackStatus } from "@/utils/stock-tracking";
-import { TProduct } from "@/types/product-t";
-import { useCategoriesStore } from "@/stores/categories-store";
 import { useNavigation } from "@/stores/use-navigation";
-import { MaterialColors } from "@/utils/colors";
-import { DeleteProductModal } from "../layouts/edit-product-modal";
+import { TDiscount } from "@/types/discount-t";
+import { DeleteDiscountModal } from "../layouts/delete-discount-modal";
+import { useDiscountsStore } from "@/stores/discount-store";
+import { toLocalCurrency } from "@/utils/currencies";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const ProductsNav = () => {
+export const DiscountsNav = () => {
   const navigation = useNavigation();
-  const products = useProductsStore();
-  const categories = useCategoriesStore();
-  const [selectedProduct, setSelectedProduct] = useState<TProduct | null>(null);
+  const discounts = useDiscountsStore();
+  const [selectedDiscount, setSelectedDiscount] = useState<TDiscount | null>(
+    null
+  );
   const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
-    products.fetchProducts(1);
-    categories.fetchCategories(1);
+    discounts.fetchDiscounts(1);
   }, []);
-  if (products.loading) {
+  if (discounts.loading) {
     return <NormalLoader />;
   }
-  if (!products.loaded) {
+  if (!discounts.loaded) {
     return <NormalError message="failed to load sales report" />;
   }
   return (
     <Fragment>
-      <DeleteProductModal
-        product={selectedProduct}
-        onCloseModal={() => setSelectedProduct(null)}
+      <DeleteDiscountModal
+        discount={selectedDiscount}
+        onCloseModal={() => setSelectedDiscount(null)}
       />
       <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
         <input
-          placeholder="Search Product"
+          placeholder="Search discounts"
           onKeyDown={(e) => {
             if (e.key != "Enter") return;
             e.preventDefault();
-            products.fetchProducts(1, searchInput);
+            discounts.fetchDiscounts(1, searchInput);
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -68,14 +63,14 @@ export const ProductsNav = () => {
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
-            <h2 className="font-semibold">Products</h2>
+            <h2 className="font-semibold">discounts</h2>
             <div className="text-sm text-foreground flex items-center gap-2">
-              {products.list.length} items
+              {discounts.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createProduct")}
+                onPress={() => navigation.setPage("createDiscount")}
               >
-                Add Product
+                Add Discount
               </Button>
             </div>
           </div>
@@ -86,45 +81,28 @@ export const ProductsNav = () => {
             >
               <TableHeader>
                 <TableColumn>Item Name</TableColumn>
-                <TableColumn>Item Quantity</TableColumn>
-                <TableColumn>Item Cost</TableColumn>
-                <TableColumn>Item Price</TableColumn>
+                <TableColumn>Value</TableColumn>
                 <TableColumn>Edit</TableColumn>
                 <TableColumn>Delete</TableColumn>
               </TableHeader>
               <TableBody>
-                {products.list.map((e, index) => {
-                  const stockReport = getStockTrackStatus({ product: e });
+                {discounts.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
                       <TableCell className="flex items-center gap-1">
-                        <div
-                          dangerouslySetInnerHTML={{ __html: e.shape }}
-                          style={{
-                            color: MaterialColors.intToHexARGB(e.color),
-                          }}
-                        />
                         {e.name}
                       </TableCell>
-                      <TableCell
-                        className={`${
-                          stockReport.report == "warning"
-                            ? "text-orange-600"
-                            : ""
-                        }
-                            ${stockReport.report == "low" ? "text-red-600" : ""}
-                            `}
-                      >
-                        {stockReport.status}
+                      <TableCell>
+                        {e.percentage
+                          ? `${e.value.toFixed(2)}%`
+                          : toLocalCurrency(e.value)}
                       </TableCell>
-                      <TableCell>{toLocalCurrency(e.cost)}</TableCell>
-                      <TableCell>{toLocalCurrency(e.price)}</TableCell>
                       <TableCell>
                         <Button
                           isIconOnly
                           onPress={() => {
-                            products.setProductForEdit(e);
-                            navigation.setPage("editProduct");
+                            discounts.setDiscountForEdit(e);
+                            navigation.setPage("editDiscount");
                           }}
                         >
                           <BiEdit />
@@ -133,7 +111,7 @@ export const ProductsNav = () => {
                       <TableCell>
                         <Button
                           isIconOnly
-                          onPress={() => setSelectedProduct(e)}
+                          onPress={() => setSelectedDiscount(e)}
                         >
                           <LuDelete />
                         </Button>
@@ -147,10 +125,10 @@ export const ProductsNav = () => {
         </div>
       </section>
       <Pagination
-        onChange={(page) => products.fetchProducts(page)}
-        isDisabled={products.loading}
-        initialPage={products.page}
-        total={products.totalPages}
+        onChange={(page) => discounts.fetchDiscounts(page)}
+        isDisabled={discounts.loading}
+        initialPage={discounts.page}
+        total={discounts.totalPages}
         className=" py-6"
       />
     </Fragment>

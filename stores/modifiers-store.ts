@@ -1,36 +1,38 @@
 import { create } from "zustand";
 import { errorToast, success } from "@/utils/toaster";
 import apiClient from "@/services/api-client";
-import { TCategory } from "@/types/category-t";
+import { ModifiersOptions, TModifier } from "@/types/modefier-t";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 
-export const useCategoriesStore = create<{
-  updateCategory: (localCategory: TCategory) => void;
-  createCategory: (localCategory: TCategory) => void;
-  focusedCategory?: TCategory;
-  setCategoryForEdit: (e: TCategory) => void;
-  deleteCategory: (arg0: TCategory) => void;
+export const useMofiersStore = create<{
+  createModifier: (localModifier: TModifier) => void;
+  updateModifier: (localModifier: TModifier) => void;
+  focusedMofier?: TModifier;
+  deleteModifier: (arg0: TModifier) => void;
+  setModifierForEdit: (e: TModifier) => void;
+  updateLocalMofierList: (options: ModifiersOptions[]) => void;
   page: number;
-  loading: boolean;
   loaded: boolean;
-  list: TCategory[];
+  loading: boolean;
+  list: TModifier[];
   totalPages: number;
-  fetchCategories: (page: number, search?: string) => void;
+  fetchModifiers: (page: number, search?: string) => void;
 }>()(
   immer((set) => ({
     page: 0,
     totalPages: 0,
-    loading: true,
+    loading: false,
     loaded: false,
     list: [],
-    updateCategory: (localCategory: TCategory) => {
+    createModifier: async (localModifier: TModifier) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        apiClient.put(`/admin/category/${localCategory._id}`, localCategory);
-        success(`${localCategory.name} Updated successffuly`);
+        localModifier._id = null;
+        await apiClient.post(`/admin/modifier`, localModifier);
+        success(`${localModifier.name} created successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -39,33 +41,35 @@ export const useCategoriesStore = create<{
         });
       }
     },
-    createCategory: async (localCategory: TCategory) => {
-      try {
-        set((state) => {
-          state.loading = true;
-        });
-        localCategory._id = null;
-        await apiClient.post(`/admin/category`, localCategory);
-        success(`${localCategory.name} Created successffuly`);
-      } catch (e) {
-        errorToast(decodeFromAxios(e).message);
-      } finally {
-        set((state) => {
-          state.loading = false;
-        });
-      }
-    },
-    setCategoryForEdit: (e: TCategory) => {
+    updateLocalMofierList: (options: ModifiersOptions[]) => {
       set((state) => {
-        state.focusedCategory = e;
+        if (state.focusedMofier) state.focusedMofier.list = options;
       });
     },
-    deleteCategory: async (arg0: TCategory) => {
+    updateModifier: async (localModifier: TModifier) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        await apiClient.delete(`/admin/category/${arg0._id}`);
+        await apiClient.put(
+          `/admin/modifier/${localModifier._id}`,
+          localModifier
+        );
+        success(`${localModifier.name} Updated successffuly`);
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
+    deleteModifier: async (arg0: TModifier) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        await apiClient.delete(`/admin/modifier/${arg0._id}`);
         success(`${arg0.name} Deleted successffuly`);
         set((state) => {
           state.loading = false;
@@ -77,13 +81,18 @@ export const useCategoriesStore = create<{
         throw e;
       }
     },
-    fetchCategories: async (page: number, search?: string) => {
+    setModifierForEdit: (arg0: TModifier) => {
+      set((state) => {
+        state.focusedMofier = arg0;
+      });
+    },
+    fetchModifiers: async (page: number, search?: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/cashier/categories?limit=100&search=${search ?? ""}&page=${page}`
+          `/cashier/modifiers?page=${page}&search=${search ?? ""}&limit=20`
         );
         set((state) => {
           state.loading = false;
