@@ -10,17 +10,21 @@ import { EditCategoryNav } from "@/components/dashboard/edits/category-edit";
 import { SalesByPaymentReport } from "@/components/dashboard/sales-by-payment";
 import { SalesByEmployeeReport } from "@/components/dashboard/sales-by-employee";
 import { CreateCategoryNav } from "@/components/dashboard/creations/add_category";
+import { ModifiersNav } from "@/components/dashboard/modifiers-view";
+import { EditModifierNav } from "@/components/dashboard/edits/modifier-edit";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
   shifts: ShiftsNav,
   receits: ReceitsNav,
   products: ProductsNav,
+  modifiers: ModifiersNav,
   categories: CategoriesNav,
   editProduct: ItemModelEdit,
   dailySales: DailySalesReport,
   editCategory: EditCategoryNav,
   createProduct: ItemModelCreate,
+  editModifier: EditModifierNav,
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,

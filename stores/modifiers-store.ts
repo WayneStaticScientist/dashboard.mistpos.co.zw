@@ -1,17 +1,22 @@
 import { create } from "zustand";
-import { errorToast } from "@/utils/toaster";
+import { errorToast, success } from "@/utils/toaster";
 import apiClient from "@/services/api-client";
-import { TModifier } from "@/types/modefier-t";
+import { ModifiersOptions, TModifier } from "@/types/modefier-t";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 
 export const useMofiersStore = create<{
+  updateModifier: (localModifier: TModifier) => void;
+  focusedMofier?: TModifier;
+  deleteModifier: (arg0: TModifier) => void;
+  setModifierForEdit: (e: TModifier) => void;
+  updateLocalMofierList: (options: ModifiersOptions[]) => void;
   page: number;
-  loading: boolean;
   loaded: boolean;
+  loading: boolean;
+  list: TModifier[];
   totalPages: number;
   fetchModifiers: (page: number, search?: string) => void;
-  list: TModifier[];
 }>()(
   immer((set) => ({
     page: 0,
@@ -19,6 +24,48 @@ export const useMofiersStore = create<{
     loading: true,
     loaded: false,
     list: [],
+    updateLocalMofierList: (options: ModifiersOptions[]) => {
+      set((state) => {
+        if (state.focusedMofier) state.focusedMofier.list = options;
+      });
+    },
+    updateModifier: (localModifier: TModifier) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        apiClient.put(`/admin/modifier/${localModifier._id}`, localModifier);
+        success(`${localModifier.name} Updated successffuly`);
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
+    deleteModifier: async (arg0: TModifier) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        await apiClient.delete(`/admin/modifier/${arg0._id}`);
+        success(`${arg0.name} Deleted successffuly`);
+        set((state) => {
+          state.loading = false;
+        });
+      } catch (e) {
+        set((state) => {
+          state.loading = false;
+        });
+        throw e;
+      }
+    },
+    setModifierForEdit: (arg0: TModifier) => {
+      set((state) => {
+        state.focusedMofier = arg0;
+      });
+    },
     fetchModifiers: async (page: number, search?: string) => {
       try {
         set((state) => {
