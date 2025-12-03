@@ -52,7 +52,7 @@ export const EditModifierNav: FC = () => {
           </Navbar>
           <div className="font-bold text-xl"> {localModifier.name}</div>
           <Input
-            label="Category Name"
+            label="Modifier Name"
             value={localModifier.name}
             onChange={(e) =>
               setLocalModifier({

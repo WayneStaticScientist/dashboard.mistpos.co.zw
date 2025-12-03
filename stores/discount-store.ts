@@ -1,38 +1,36 @@
 import { create } from "zustand";
-import { errorToast, success } from "@/utils/toaster";
 import apiClient from "@/services/api-client";
-import { ModifiersOptions, TModifier } from "@/types/modefier-t";
-import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
+import { immer } from "zustand/middleware/immer";
+import { errorToast, success } from "@/utils/toaster";
+import { TDiscount } from "@/types/discount-t";
 
-export const useMofiersStore = create<{
-  createModifier: (localModifier: TModifier) => void;
-  updateModifier: (localModifier: TModifier) => void;
-  focusedMofier?: TModifier;
-  deleteModifier: (arg0: TModifier) => void;
-  setModifierForEdit: (e: TModifier) => void;
-  updateLocalMofierList: (options: ModifiersOptions[]) => void;
+export const useDiscountsStore = create<{
+  updateDiscount: (localDiscount: TDiscount) => void;
+  createDiscount: (localDiscount: TDiscount) => void;
+  focusedDiscount?: TDiscount;
+  setDiscountForEdit: (e: TDiscount) => void;
+  deleteDiscount: (arg0: TDiscount) => void;
   page: number;
-  loaded: boolean;
   loading: boolean;
-  list: TModifier[];
+  loaded: boolean;
+  list: TDiscount[];
   totalPages: number;
-  fetchModifiers: (page: number, search?: string) => void;
+  fetchDiscounts: (page: number, search?: string) => void;
 }>()(
   immer((set) => ({
     page: 0,
     totalPages: 0,
-    loading: false,
+    loading: true,
     loaded: false,
     list: [],
-    createModifier: async (localModifier: TModifier) => {
+    updateDiscount: (localDiscount: TDiscount) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        localModifier._id = null;
-        await apiClient.post(`/admin/modifier`, localModifier);
-        success(`${localModifier.name} created successffuly`);
+        apiClient.put(`/admin/discount/${localDiscount._id}`, localDiscount);
+        success(`${localDiscount.name} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -41,35 +39,33 @@ export const useMofiersStore = create<{
         });
       }
     },
-    updateLocalMofierList: (options: ModifiersOptions[]) => {
+    createDiscount: async (localDiscount: TDiscount) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        localDiscount._id = null;
+        await apiClient.post(`/admin/discount`, localDiscount);
+        success(`${localDiscount.name} Created successffuly`);
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
+    setDiscountForEdit: (e: TDiscount) => {
       set((state) => {
-        if (state.focusedMofier) state.focusedMofier.list = options;
+        state.focusedDiscount = e;
       });
     },
-    updateModifier: async (localModifier: TModifier) => {
+    deleteDiscount: async (arg0: TDiscount) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        await apiClient.put(
-          `/admin/modifier/${localModifier._id}`,
-          localModifier
-        );
-        success(`${localModifier.name} Updated successffuly`);
-      } catch (e) {
-        errorToast(decodeFromAxios(e).message);
-      } finally {
-        set((state) => {
-          state.loading = false;
-        });
-      }
-    },
-    deleteModifier: async (arg0: TModifier) => {
-      try {
-        set((state) => {
-          state.loading = true;
-        });
-        await apiClient.delete(`/admin/modifier/${arg0._id}`);
+        await apiClient.delete(`/admin/discount/${arg0._id}`);
         success(`${arg0.name} Deleted successffuly`);
         set((state) => {
           state.loading = false;
@@ -81,18 +77,13 @@ export const useMofiersStore = create<{
         throw e;
       }
     },
-    setModifierForEdit: (arg0: TModifier) => {
-      set((state) => {
-        state.focusedMofier = arg0;
-      });
-    },
-    fetchModifiers: async (page: number, search?: string) => {
+    fetchDiscounts: async (page: number, search?: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/cashier/modifiers?page=${page}&search=${search ?? ""}&limit=20`
+          `/cashier/discounts?limit=100&search=${search ?? ""}&page=${page}`
         );
         set((state) => {
           state.loading = false;

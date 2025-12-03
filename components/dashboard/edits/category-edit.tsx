@@ -34,7 +34,7 @@ export const EditCategoryNav: FC = () => {
               onClick={() => navigation.back()}
             >
               <IoIosArrowBack />
-              <p className="font-bold text-inherit ml-3">Create New Category</p>
+              <p className="font-bold text-inherit ml-3">Update Category</p>
             </NavbarBrand>
           </Navbar>
           <div className="font-bold text-xl"> {localCategory.name}</div>
