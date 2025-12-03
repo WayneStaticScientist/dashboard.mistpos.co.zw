@@ -369,7 +369,7 @@ export const ItemModelCreate: FC = () => {
           isLoading={productState.loading}
           onPress={() => productState.createProduct(localProduct)}
         >
-          Update Item
+          Create Item
         </Button>
       </div>
     </div>

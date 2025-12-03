@@ -1,11 +1,16 @@
 import { create } from "zustand";
-import { errorToast } from "@/utils/toaster";
+import { errorToast, success } from "@/utils/toaster";
 import apiClient from "@/services/api-client";
 import { TCategory } from "@/types/category-t";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 
 export const useCategoriesStore = create<{
+  updateCategory: (localCategory: TCategory) => void;
+  createCategory: (localCategory: TCategory) => void;
+  focusedCategory?: TCategory;
+  setCategoryForEdit: (e: TCategory) => void;
+  deleteCategory: (arg0: TCategory) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
@@ -19,6 +24,59 @@ export const useCategoriesStore = create<{
     loading: true,
     loaded: false,
     list: [],
+    updateCategory: (localCategory: TCategory) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        apiClient.put(`/admin/category/${localCategory._id}`, localCategory);
+        success(`${localCategory.name} Updated successffuly`);
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
+    createCategory: async (localCategory: TCategory) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        localCategory._id = null;
+        await apiClient.post(`/admin/category`, localCategory);
+        success(`${localCategory.name} Created successffuly`);
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
+    setCategoryForEdit: (e: TCategory) => {
+      set((state) => {
+        state.focusedCategory = e;
+      });
+    },
+    deleteCategory: async (arg0: TCategory) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        await apiClient.delete(`/admin/category/${arg0._id}`);
+        success(`${arg0.name} Deleted successffuly`);
+        set((state) => {
+          state.loading = false;
+        });
+      } catch (e) {
+        set((state) => {
+          state.loading = false;
+        });
+        throw e;
+      }
+    },
     fetchCategories: async (page: number, search?: string) => {
       try {
         set((state) => {
