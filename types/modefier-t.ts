@@ -3,7 +3,8 @@ export interface ModifiersOptions {
   value: number;
 }
 export interface TModifier {
-  company: string;
+  _id: string;
   name: string;
+  company: string;
   list: ModifiersOptions[];
 }

@@ -6,6 +6,7 @@ import { DailySalesReport } from "@/components/dashboard/daily-sales";
 import { ItemModelEdit } from "@/components/dashboard/edits/item-edit";
 import { SalesByPaymentReport } from "@/components/dashboard/sales-by-payment";
 import { SalesByEmployeeReport } from "@/components/dashboard/sales-by-employee";
+import { ItemModelCreate } from "@/components/dashboard/creations/add_item";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
@@ -14,6 +15,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   products: ProductsNav,
   editProduct: ItemModelEdit,
   dailySales: DailySalesReport,
+  createProduct: ItemModelCreate,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,
 };

@@ -1,7 +1,7 @@
 import type { InvItem } from "./purchase-order-t";
 
 export type TProduct = {
-  _id: string;
+  _id: any;
   sku: string;
   color: number;
   cost: number;

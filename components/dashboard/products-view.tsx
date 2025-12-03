@@ -21,10 +21,11 @@ import { errorToast } from "@/utils/toaster";
 import { toLocalCurrency } from "@/utils/currencies";
 import { useProductsStore } from "@/stores/product-stores";
 import { getStockTrackStatus } from "@/utils/stock-tracking";
-import { EditProductModal } from "../layouts/edit-product-modal";
 import { TProduct } from "@/types/product-t";
 import { useCategoriesStore } from "@/stores/categories-store";
 import { useNavigation } from "@/stores/use-navigation";
+import { MaterialColors } from "@/utils/colors";
+import { DeleteProductModal } from "../layouts/edit-product-modal";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
 export const ProductsNav = () => {
   const navigation = useNavigation();
@@ -44,38 +45,38 @@ export const ProductsNav = () => {
   }
   return (
     <Fragment>
-      <EditProductModal
+      <DeleteProductModal
         product={selectedProduct}
         onCloseModal={() => setSelectedProduct(null)}
       />
-      <section className=" grid grid-cols-5   gap-4 mb-4 items-center justify-center">
-        <div className="relative bg-[#e6e6e617] rounded-2xl">
-          <input
-            placeholder="Search Receit"
-            onKeyDown={(e) => {
-              if (e.key != "Enter") return;
-              e.preventDefault();
-              if (searchInput.trim() != "") {
-                products.fetchProducts(1, searchInput);
-              } else {
-                return errorToast("cant search empty products");
-              }
-            }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-10 pr-4 py-2 rounded-md  w-full md:w-72 text-foreground active:border-0 focus:border-0  outline-0
+      <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
+        <input
+          placeholder="Search Product"
+          onKeyDown={(e) => {
+            if (e.key != "Enter") return;
+            e.preventDefault();
+            products.fetchProducts(1, searchInput);
+          }}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="pl-10 pr-4 py-2 rounded-md  w-full md:w-72 text-foreground active:border-0 focus:border-0  outline-0
                active:outline-1 focus:outline-0"
-            aria-label="Search Receit"
-          />
-          <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
-        </div>
-      </section>
+          aria-label="Search Receit"
+        />
+        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
+      </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
             <h2 className="font-semibold">Products</h2>
-            <div className="text-sm text-foreground">
+            <div className="text-sm text-foreground flex items-center gap-2">
               {products.list.length} items
+              <Button
+                color="primary"
+                onPress={() => navigation.setPage("createProduct")}
+              >
+                Add Product
+              </Button>
             </div>
           </div>
           <div className="p-4 overflow-x-auto">
@@ -96,7 +97,15 @@ export const ProductsNav = () => {
                   const stockReport = getStockTrackStatus({ product: e });
                   return (
                     <TableRow key={index}>
-                      <TableCell>{e.name}</TableCell>
+                      <TableCell className="flex items-center gap-1">
+                        <div
+                          dangerouslySetInnerHTML={{ __html: e.shape }}
+                          style={{
+                            color: MaterialColors.intToHexARGB(e.color),
+                          }}
+                        />
+                        {e.name}
+                      </TableCell>
                       <TableCell
                         className={`${
                           stockReport.report == "warning"
@@ -122,7 +131,10 @@ export const ProductsNav = () => {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <Button isIconOnly>
+                        <Button
+                          isIconOnly
+                          onPress={() => setSelectedProduct(e)}
+                        >
                           <LuDelete />
                         </Button>
                       </TableCell>

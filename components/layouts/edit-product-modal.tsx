@@ -4,18 +4,17 @@ import {
   ModalHeader,
   ModalBody,
   useDisclosure,
-  Listbox,
-  ListboxItem,
-  Input,
-  Checkbox,
-  Select,
-  SelectItem,
+  ModalFooter,
+  Button,
 } from "@heroui/react";
+import { Fragment } from "react";
 import { TProduct } from "@/types/product-t";
-import { Fragment, useEffect, useState } from "react";
+import { useProductState } from "@/stores/use-product-state";
+import { useProductsStore } from "@/stores/product-stores";
 import { errorToast } from "@/utils/toaster";
-import { useCategoriesStore } from "@/stores/categories-store";
-export const EditProductModal = ({
+import { decodeFromAxios } from "@/utils/errors";
+import { NormalLoader } from "../loaders/normal-loader";
+export const DeleteProductModal = ({
   product,
   onCloseModal,
 }: {
@@ -23,21 +22,8 @@ export const EditProductModal = ({
   onCloseModal?: () => void;
 }) => {
   const { onClose } = useDisclosure();
-  const categories = useCategoriesStore();
-  const [localProduct, setLocalProduct] = useState<TProduct | null>(
-    product || null
-  );
-  const initializeLocalProduct = (productProp?: TProduct | null) => {
-    if (productProp) {
-      setLocalProduct({ ...productProp });
-    } else {
-      setLocalProduct(null);
-    }
-  };
-
-  useEffect(() => {
-    initializeLocalProduct(product);
-  }, [product]);
+  const products = useProductsStore();
+  const useProduct = useProductState();
   return (
     <>
       <Modal
@@ -52,50 +38,38 @@ export const EditProductModal = ({
         <ModalContent>
           {(onClose) => (
             <Fragment>
-              {localProduct && (
-                <>
-                  <ModalHeader className="flex flex-col gap-1">
-                    {localProduct?.name}
-                  </ModalHeader>
-                  <ModalBody className="gap-4">
-                    <Input
-                      label="Item Name"
-                      value={localProduct!.name}
-                      onChange={(e) =>
-                        setLocalProduct({
-                          ...localProduct!,
-                          name: e.target.value,
-                        })
+              <ModalBody>
+                <ModalHeader className="flex flex-col gap-1">
+                  Delete {product?.name}
+                </ModalHeader>
+                <ModalBody className="gap-4">
+                  {useProduct.loading ? (
+                    <NormalLoader />
+                  ) : (
+                    ` Are you sure to delete ${product?.name}?`
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                  <Button
+                    color="danger"
+                    onPress={async () => {
+                      try {
+                        await useProduct.deleteProduct(product!);
+                        onCloseModal?.();
+                        onClose();
+                        products.fetchProducts(1);
+                      } catch (e) {
+                        errorToast(decodeFromAxios(e).message);
                       }
-                    />
-                    <Checkbox
-                      defaultSelected={localProduct.isForSale}
-                      onValueChange={(e) => {
-                        setLocalProduct({
-                          ...localProduct!,
-                          isForSale: e,
-                        });
-                      }}
-                    >
-                      Item Is Available For Sale
-                    </Checkbox>
-                    <Select className="w-full" label="Select Category">
-                      {categories.list.map((category, index) => (
-                        <SelectItem key={category._id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                    <div>
-                      Sold By
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Checkbox defaultSelected>Each</Checkbox>
-                        <Checkbox defaultSelected>Weight</Checkbox>
-                      </div>
-                    </div>
-                  </ModalBody>
-                </>
-              )}
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </ModalFooter>
+              </ModalBody>
             </Fragment>
           )}
         </ModalContent>
