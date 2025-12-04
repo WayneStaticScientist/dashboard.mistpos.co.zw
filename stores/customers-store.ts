@@ -1,24 +1,22 @@
 import { create } from "zustand";
-import { TCompany } from "@/types/company-t";
 import apiClient from "@/services/api-client";
+import { TCustomer } from "@/types/customer-t";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
 
-export const useCompanyStore = create<{
-  company?: TCompany;
-  fetchCompany: (id: string) => void;
-  updatecompany: (localcompany: TCompany) => void;
-  createcompany: (localcompany: TCompany) => void;
-  focusedCompany?: TCompany;
-  seTCompanyForEdit: (e: TCompany) => void;
-  deleteCompany: (arg0: TCompany) => void;
+export const useCustomerStore = create<{
+  updateCustomer: (localCustomer: TCustomer) => void;
+  createCustomer: (localCustomer: TCustomer) => void;
+  focusedCustomer?: TCustomer;
+  setCustomerForEdit: (e: TCustomer) => void;
+  deleteCustomer: (arg0: TCustomer) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
-  list: TCompany[];
+  list: TCustomer[];
   totalPages: number;
-  fetchCompanies: (page: number, search?: string) => void;
+  fetchCustomers: (page: number, search?: string) => void;
 }>()(
   immer((set) => ({
     page: 0,
@@ -26,30 +24,16 @@ export const useCompanyStore = create<{
     loading: false,
     loaded: false,
     list: [],
-    fetchCompany: async (id: string) => {
+    updateCustomer: async (localCustomer: TCustomer) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        const response = await apiClient.get(`/company/${id}`);
-        set((state) => {
-          state.loading = false;
-          state.company = response.data.update;
-        });
-      } catch (e) {
-        set((state) => {
-          state.loading = false;
-        });
-        errorToast(decodeFromAxios(e).message);
-      }
-    },
-    updatecompany: async (localcompany: TCompany) => {
-      try {
-        set((state) => {
-          state.loading = true;
-        });
-        await apiClient.put(`/admin/company/${localcompany._id}`, localcompany);
-        success(`${localcompany.name} Updated successffuly`);
+        await apiClient.put(
+          `/admin/customer/${localCustomer._id}`,
+          localCustomer
+        );
+        success(`${localCustomer.fullName} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -58,14 +42,16 @@ export const useCompanyStore = create<{
         });
       }
     },
-    createcompany: async (localcompany: TCompany) => {
+    createCustomer: async (localCustomer: TCustomer) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        localcompany._id = null;
-        await apiClient.post(`/admin/company`, localcompany);
-        success(`${localcompany.name} Created successffuly`);
+        localCustomer._id = null;
+        await apiClient.post(`/cashier/customer`, {
+          user: localCustomer,
+        });
+        success(`${localCustomer.fullName} Created successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -74,18 +60,18 @@ export const useCompanyStore = create<{
         });
       }
     },
-    seTCompanyForEdit: (e: TCompany) => {
+    setCustomerForEdit: (e: TCustomer) => {
       set((state) => {
-        state.focusedCompany = e;
+        state.focusedCustomer = e;
       });
     },
-    deleteCompany: async (arg0: TCompany) => {
+    deleteCustomer: async (arg0: TCustomer) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        await apiClient.delete(`/admin/company/${arg0._id}`);
-        success(`${arg0.name} Deleted successffuly`);
+        await apiClient.delete(`/admin/customer/${arg0._id}`);
+        success(`${arg0.fullName} Deleted successffuly`);
         set((state) => {
           state.loading = false;
         });
@@ -96,13 +82,13 @@ export const useCompanyStore = create<{
         throw e;
       }
     },
-    fetchCompanies: async (page: number, search?: string) => {
+    fetchCustomers: async (page: number, search?: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/admin/companies?limit=100&search=${search ?? ""}&page=${page}`
+          `/cashier/customers?limit=20&search=${search ?? ""}&page=${page}`
         );
         set((state) => {
           state.loading = false;

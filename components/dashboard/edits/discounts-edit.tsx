@@ -6,11 +6,7 @@ import { useNavigation } from "@/stores/use-navigation";
 import { useDiscountsStore } from "@/stores/discount-store";
 import { Button, Checkbox, Input, Navbar, NavbarBrand } from "@heroui/react";
 import { MistDivider } from "@/components/layouts/mist-divider";
-import {
-  toBaseCurrence,
-  toLocalCurrenceString,
-  toLocalCurrency,
-} from "@/utils/currencies";
+import { toBaseCurrence, toLocalCurrenceString } from "@/utils/currencies";
 import useSessionState from "@/stores/session-store";
 
 export const EditDiscountsNav: FC = () => {

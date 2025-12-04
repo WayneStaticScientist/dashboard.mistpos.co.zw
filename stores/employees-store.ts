@@ -1,24 +1,22 @@
 import { create } from "zustand";
-import { TCompany } from "@/types/company-t";
 import apiClient from "@/services/api-client";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
+import { TUser } from "@/types/user-t";
 
-export const useCompanyStore = create<{
-  company?: TCompany;
-  fetchCompany: (id: string) => void;
-  updatecompany: (localcompany: TCompany) => void;
-  createcompany: (localcompany: TCompany) => void;
-  focusedCompany?: TCompany;
-  seTCompanyForEdit: (e: TCompany) => void;
-  deleteCompany: (arg0: TCompany) => void;
+export const useEmployeesStore = create<{
+  updateEmployee: (localEmployee: TUser) => void;
+  createEmployee: (localEmployee: TUser) => void;
+  focusedEmployee?: TUser;
+  setEmployeeForEdit: (e: TUser) => void;
+  deleteEmployee: (arg0: TUser) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
-  list: TCompany[];
+  list: TUser[];
   totalPages: number;
-  fetchCompanies: (page: number, search?: string) => void;
+  fetchEmployees: (page: number, search?: string) => void;
 }>()(
   immer((set) => ({
     page: 0,
@@ -26,30 +24,13 @@ export const useCompanyStore = create<{
     loading: false,
     loaded: false,
     list: [],
-    fetchCompany: async (id: string) => {
+    updateEmployee: async (localEmployee: TUser) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        const response = await apiClient.get(`/company/${id}`);
-        set((state) => {
-          state.loading = false;
-          state.company = response.data.update;
-        });
-      } catch (e) {
-        set((state) => {
-          state.loading = false;
-        });
-        errorToast(decodeFromAxios(e).message);
-      }
-    },
-    updatecompany: async (localcompany: TCompany) => {
-      try {
-        set((state) => {
-          state.loading = true;
-        });
-        await apiClient.put(`/admin/company/${localcompany._id}`, localcompany);
-        success(`${localcompany.name} Updated successffuly`);
+        await apiClient.put(`/admin/employee`, { user: localEmployee });
+        success(`${localEmployee.fullName} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -58,14 +39,31 @@ export const useCompanyStore = create<{
         });
       }
     },
-    createcompany: async (localcompany: TCompany) => {
+    createEmployee: async (localEmployee: TUser) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        localcompany._id = null;
-        await apiClient.post(`/admin/company`, localcompany);
-        success(`${localcompany.name} Created successffuly`);
+        localEmployee._id = null;
+        if (localEmployee.role.trim() == "") {
+          return errorToast("role cant be empty");
+        }
+        if (localEmployee.fullName.trim().split(" ").length < 2) {
+          return errorToast("Please enter full Name like John Doe");
+        }
+        if (localEmployee.email.trim().length < 4) {
+          return errorToast("Please enter valid email");
+        }
+        if (!localEmployee.pin) {
+          return errorToast("Please enter valid pin");
+        }
+        if (localEmployee.pin?.trim().length < 4) {
+          return errorToast("Please enter valid pin");
+        }
+        await apiClient.post(`/admin/employee`, {
+          user: localEmployee,
+        });
+        success(`${localEmployee.fullName} Created successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -74,18 +72,18 @@ export const useCompanyStore = create<{
         });
       }
     },
-    seTCompanyForEdit: (e: TCompany) => {
+    setEmployeeForEdit: (e: TUser) => {
       set((state) => {
-        state.focusedCompany = e;
+        state.focusedEmployee = e;
       });
     },
-    deleteCompany: async (arg0: TCompany) => {
+    deleteEmployee: async (arg0: TUser) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        await apiClient.delete(`/admin/company/${arg0._id}`);
-        success(`${arg0.name} Deleted successffuly`);
+        await apiClient.delete(`/admin/employee/${arg0._id}`);
+        success(`${arg0.fullName} Deleted successffuly`);
         set((state) => {
           state.loading = false;
         });
@@ -96,13 +94,13 @@ export const useCompanyStore = create<{
         throw e;
       }
     },
-    fetchCompanies: async (page: number, search?: string) => {
+    fetchEmployees: async (page: number, search?: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/admin/companies?limit=100&search=${search ?? ""}&page=${page}`
+          `/admin/employees?limit=20&search=${search ?? ""}&page=${page}`
         );
         set((state) => {
           state.loading = false;

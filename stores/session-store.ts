@@ -11,8 +11,11 @@ import axios from "axios";
 
 const useSessionState = create<
   TUser & {
+    switchId: string;
+    switching: boolean;
     sesionLoading: boolean;
     loading: boolean;
+    switchToACompany: (companyId: string) => void;
     login: (email: string, password: string) => void;
     getSessionState: () => void;
   }
@@ -28,6 +31,7 @@ const useSessionState = create<
     company: "",
     password: "",
     companies: [],
+    switchId: "",
     accessToken: "",
     companyName: "",
     refreshToken: "",
@@ -35,6 +39,7 @@ const useSessionState = create<
     baseCurrence: "",
     permissions: [],
     receitsCount: 0,
+    switching: false,
     subscriptions: [],
     pinnedInput: false,
     sesionLoading: true,
@@ -71,6 +76,32 @@ const useSessionState = create<
         throw error;
       }
     },
+    switchToACompany: async (companyId: string) => {
+      try {
+        if (companyId.trim() == "") {
+          return errorToast("invalid company id");
+        }
+        set((state) => {
+          state.switchId = companyId;
+          state.switching = true;
+        });
+        const response = await apiClient.put(`/user/company/${companyId}`);
+        const user = response.data.update;
+        set(user);
+        set((state) => {
+          state.switchId = "";
+          state.switching = false;
+        });
+        localStorage.setItem("user", JSON.stringify(user));
+        success("Succefully switched stores");
+      } catch (error) {
+        set((state) => {
+          state.loading = false;
+        });
+        throw error;
+      }
+    },
+
     getSessionState: async () => {
       const user = localStorage.getItem("user");
       if (!user) {

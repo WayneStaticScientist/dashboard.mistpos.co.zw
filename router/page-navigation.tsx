@@ -3,6 +3,7 @@ import { MainReport } from "@/components/dashboard/main-report";
 import { ReceitsNav } from "@/components/dashboard/receits-view";
 import { ProductsNav } from "@/components/dashboard/products-view";
 import { DailySalesReport } from "@/components/dashboard/daily-sales";
+import { ModifiersNav } from "@/components/dashboard/modifiers-view";
 import { ItemModelEdit } from "@/components/dashboard/edits/item-edit";
 import { CategoriesNav } from "@/components/dashboard/categories-view";
 import { ItemModelCreate } from "@/components/dashboard/creations/add_item";
@@ -10,7 +11,6 @@ import { EditCategoryNav } from "@/components/dashboard/edits/category-edit";
 import { SalesByPaymentReport } from "@/components/dashboard/sales-by-payment";
 import { SalesByEmployeeReport } from "@/components/dashboard/sales-by-employee";
 import { CreateCategoryNav } from "@/components/dashboard/creations/add_category";
-import { ModifiersNav } from "@/components/dashboard/modifiers-view";
 import { EditModifierNav } from "@/components/dashboard/edits/modifier-edit";
 import { AddModifierNav } from "@/components/dashboard/creations/add_modifier";
 import { DiscountsNav } from "@/components/dashboard/discounts-view";
@@ -38,18 +38,32 @@ import { ViewProductions } from "@/components/dashboard/inventory/edits/view-pro
 import { AddProductions } from "@/components/dashboard/inventory/creations/add-production";
 import { InventoryHistoryNav } from "@/components/dashboard/inventory/inventory-history";
 import { InventoryEvaluation } from "@/components/dashboard/inventory/inventory-evaluation";
+import { EmployeesNav } from "@/components/dashboard/employees-view";
+import { EditEmployeeNav } from "@/components/dashboard/edits/employee-edit";
+import { AddEmployeeNav } from "@/components/dashboard/creations/add_employee";
+import { CustomersNav } from "@/components/dashboard/customers-view";
+import { EditCustomerNav } from "@/components/dashboard/edits/edit-customer";
+import { AddCustomerNav } from "@/components/dashboard/creations/add_customer";
+import { StoresNav } from "@/components/dashboard/stores-view";
+import { EditStoreNav } from "@/components/dashboard/edits/store-edit";
+import { AddStoreNav } from "@/components/dashboard/creations/add_store";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
   su: SuppliersNav,
   shifts: ShiftsNav,
+  stores: StoresNav,
   receits: ReceitsNav,
   ta: TransferOrdersNav,
   po: PurchaseOrdersNav,
   products: ProductsNav,
   ic: InventoryCountsNav,
+  editStore: EditStoreNav,
+  employees: EmployeesNav,
   ih: InventoryHistoryNav,
+  createStore: AddStoreNav,
   modifiers: ModifiersNav,
+  customers: CustomersNav,
   sa: StockAdjustmentsNav,
   iv: InventoryEvaluation,
   discounts: DiscountsNav,
@@ -57,6 +71,8 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editProduct: ItemModelEdit,
   productions: ProductionsNav,
   dailySales: DailySalesReport,
+  editCustomer: EditCustomerNav,
+  createEmployee: AddEmployeeNav,
   editModifier: EditModifierNav,
   editCategory: EditCategoryNav,
   createModifier: AddModifierNav,
@@ -65,9 +81,11 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   createProduct: ItemModelCreate,
   editDiscount: EditDiscountsNav,
   createSupplier: AddSupplierNav,
-  createProduction: AddProductions,
+  createCustomer: AddCustomerNav,
+  editEmployee: EditEmployeeNav,
   editProduction: ViewProductions,
   createDiscount: AddDiscountsNav,
+  createProduction: AddProductions,
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,
