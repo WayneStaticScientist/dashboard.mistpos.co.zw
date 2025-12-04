@@ -12,6 +12,7 @@ export type SubscriptionType = {
   hasExhaustedCredits: boolean;
 };
 export interface TCompany {
+  _id: any;
   owner: string;
   name: string;
   email: string;

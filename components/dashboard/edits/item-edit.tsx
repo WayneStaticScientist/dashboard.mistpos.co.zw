@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
+import { IoIosArrowBack, IoMdAdd, IoMdClose } from "react-icons/io";
 import { MaterialColors } from "@/utils/colors";
 import { useNavigation } from "@/stores/use-navigation";
 import { FC, Fragment, useEffect, useState } from "react";
@@ -105,7 +105,17 @@ export const ItemModelEdit: FC = () => {
           >
             Item Is Available For Sale
           </Checkbox>
-          <Select className="w-full" label="Select Category">
+          <Select
+            className="w-full"
+            label="Select Category"
+            value={localProduct.category}
+            onChange={(e) => {
+              setLocalProduct({
+                ...localProduct!,
+                category: e.target.value,
+              });
+            }}
+          >
             {categories.list.map((category) => (
               <SelectItem key={category._id}>{category.name}</SelectItem>
             ))}
@@ -290,7 +300,18 @@ export const ItemModelEdit: FC = () => {
                         }}
                       />
                     </TableCell>
-                    <TableCell>{""}</TableCell>
+                    <TableCell>
+                      <Button
+                        isIconOnly
+                        onPress={() => {
+                          invStore.setList(
+                            invStore.list.filter((i) => i.id !== item.id)
+                          );
+                        }}
+                      >
+                        <IoMdClose />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

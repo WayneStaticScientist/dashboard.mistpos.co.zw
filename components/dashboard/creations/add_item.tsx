@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { MaterialColors } from "@/utils/colors";
-import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
+import { IoIosArrowBack, IoMdAdd, IoMdClose } from "react-icons/io";
 import { useNavigation } from "@/stores/use-navigation";
 import { FC, Fragment, useEffect, useState } from "react";
 import { useProductsStore } from "@/stores/product-stores";
@@ -113,7 +113,17 @@ export const ItemModelCreate: FC = () => {
         >
           Item Is Available For Sale
         </Checkbox>
-        <Select className="w-full" label="Select Category">
+        <Select
+          className="w-full"
+          label="Select Category"
+          value={localProduct.category}
+          onChange={(e) => {
+            setLocalProduct({
+              ...localProduct!,
+              category: e.target.value,
+            });
+          }}
+        >
           {categories.list.map((category) => (
             <SelectItem key={category._id}>{category.name}</SelectItem>
           ))}
@@ -298,7 +308,18 @@ export const ItemModelCreate: FC = () => {
                       }}
                     />
                   </TableCell>
-                  <TableCell>{""}</TableCell>
+                  <TableCell>
+                    <Button
+                      isIconOnly
+                      onPress={() => {
+                        invStore.setList(
+                          invStore.list.filter((i) => i.id !== item.id)
+                        );
+                      }}
+                    >
+                      <IoMdClose />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
