@@ -23,7 +23,7 @@ export const useSupplierStore = create<{
   immer((set) => ({
     page: 0,
     totalPages: 0,
-    loading: true,
+    loading: false,
     loaded: false,
     list: [],
     fetchSupplier: async (id: string) => {
@@ -48,7 +48,7 @@ export const useSupplierStore = create<{
         set((state) => {
           state.loading = true;
         });
-        apiClient.put(`/admin/Supplier/${localSupplier._id}`, localSupplier);
+        apiClient.put(`/admin/supplier/${localSupplier._id}`, localSupplier);
         success(`${localSupplier.name} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
@@ -64,7 +64,7 @@ export const useSupplierStore = create<{
           state.loading = true;
         });
         localSupplier._id = null;
-        await apiClient.post(`/admin/Supplier`, localSupplier);
+        await apiClient.post(`/admin/supplier`, localSupplier);
         success(`${localSupplier.name} Created successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
@@ -84,7 +84,7 @@ export const useSupplierStore = create<{
         set((state) => {
           state.loading = true;
         });
-        await apiClient.delete(`/admin/Supplier/${arg0._id}`);
+        await apiClient.delete(`/admin/supplier/${arg0._id}`);
         success(`${arg0.name} Deleted successffuly`);
         set((state) => {
           state.loading = false;

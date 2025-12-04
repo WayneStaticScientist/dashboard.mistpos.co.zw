@@ -20,14 +20,25 @@ import { PurchaseOrdersNav } from "@/components/dashboard/inventory/purchase-ord
 import { AddPurchaseOrder } from "@/components/dashboard/inventory/creations/add-purchase-order";
 import { ViewPurchaseOrder } from "@/components/dashboard/inventory/edits/view-purchase-order";
 import { ReceivePurchaseOrder } from "@/components/dashboard/inventory/edits/receive-purchase-order";
+import { StockAdjustmentsNav } from "@/components/dashboard/inventory/stock-adjustments-view";
+import { ViewStockAdjustment } from "@/components/dashboard/inventory/edits/view-stock-adjustments";
+import { AddStockAdjustment } from "@/components/dashboard/inventory/creations/add-stock-adjustment";
+import { SuppliersNav } from "@/components/dashboard/inventory/suppliers-view";
+import { EditsupplierNav } from "@/components/dashboard/inventory/edits/supplier-edits";
+import { AddSupplierNav } from "@/components/dashboard/inventory/creations/add-supplier";
+import { TransferOrdersNav } from "@/components/dashboard/inventory/transfer-orders-view";
+import { ViewTransferOrder } from "@/components/dashboard/inventory/edits/view-transger-order";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
+  su: SuppliersNav,
   shifts: ShiftsNav,
   receits: ReceitsNav,
   po: PurchaseOrdersNav,
   products: ProductsNav,
   modifiers: ModifiersNav,
+  ta: TransferOrdersNav,
+  sa: StockAdjustmentsNav,
   discounts: DiscountsNav,
   categories: CategoriesNav,
   editProduct: ItemModelEdit,
@@ -35,15 +46,20 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editModifier: EditModifierNav,
   editCategory: EditCategoryNav,
   createModifier: AddModifierNav,
+  editSupplier: EditsupplierNav,
   createProduct: ItemModelCreate,
   editDiscount: EditDiscountsNav,
+  createSupplier: AddSupplierNav,
   createDiscount: AddDiscountsNav,
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,
   viewPurchaseOrder: ViewPurchaseOrder,
+  viewTransferOrder: ViewTransferOrder,
   createPurchaseOrder: AddPurchaseOrder,
+  viewStockAdjusment: ViewStockAdjustment,
   receivePurchaseOrder: ReceivePurchaseOrder,
+  createStockAdjustment: AddStockAdjustment,
 };
 
 export const MistNavigation = ({ path }: { path: string }) => {

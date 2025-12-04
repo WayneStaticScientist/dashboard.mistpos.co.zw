@@ -3,7 +3,6 @@ import {
   Accordion,
   AccordionItem,
   Button,
-  Input,
   Listbox,
   ListboxItem,
   Navbar,
@@ -11,8 +10,6 @@ import {
   NavbarContent,
   NavbarItem,
   Progress,
-  Select,
-  SelectItem,
   Table,
   TableBody,
   TableCell,
@@ -21,7 +18,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { FC, useEffect, useState } from "react";
-import useSessionState from "@/stores/session-store";
+import { MistDateUtils } from "@/utils/date-utils";
 import { toLocalCurrency } from "@/utils/currencies";
 import { useNavigation } from "@/stores/use-navigation";
 import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
@@ -32,7 +29,6 @@ import { MistDivider } from "@/components/layouts/mist-divider";
 import { NormalLoader } from "@/components/loaders/normal-loader";
 import { usePurchaseOrderStore } from "@/stores/purchase-order-store";
 import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
-import { MistDateUtils } from "@/utils/date-utils";
 
 export const ViewPurchaseOrder: FC = () => {
   const invStore = useInvSelect();
@@ -91,17 +87,19 @@ export const ViewPurchaseOrder: FC = () => {
               </p>
             </NavbarBrand>
             <NavbarContent justify="end">
-              <NavbarItem>
-                <Button
-                  color="primary"
-                  variant="flat"
-                  onPress={() => {
-                    navigation.setPage("receivePurchaseOrder");
-                  }}
-                >
-                  RECEIVE
-                </Button>
-              </NavbarItem>
+              {localPurchaseOrder.status != "accepted" && (
+                <NavbarItem>
+                  <Button
+                    color="primary"
+                    variant="flat"
+                    onPress={() => {
+                      navigation.setPage("receivePurchaseOrder");
+                    }}
+                  >
+                    RECEIVE
+                  </Button>
+                </NavbarItem>
+              )}
             </NavbarContent>
           </Navbar>
           <InvSelectionModal
@@ -167,7 +165,8 @@ export const ViewPurchaseOrder: FC = () => {
             <TableHeader>
               <TableColumn>Name</TableColumn>
               <TableColumn>Cost</TableColumn>
-              <TableColumn>Quantity</TableColumn>
+              <TableColumn>Ordered</TableColumn>
+              <TableColumn>Received</TableColumn>
               <TableColumn>Amount</TableColumn>
             </TableHeader>
             <TableBody>
@@ -176,6 +175,7 @@ export const ViewPurchaseOrder: FC = () => {
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{toLocalCurrency(item.cost)}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
+                  <TableCell>{item.counted}</TableCell>
                   <TableCell>
                     {toLocalCurrency(item.cost * item.quantity)}
                   </TableCell>
@@ -183,16 +183,6 @@ export const ViewPurchaseOrder: FC = () => {
               ))}
             </TableBody>
           </Table>
-          <Button
-            color="primary"
-            isLoading={purchaseOrders.loading}
-            onPress={() => {
-              localPurchaseOrder.inventoryItems = invStore.list;
-              purchaseOrders.createPurchaseOrder(localPurchaseOrder);
-            }}
-          >
-            Create Item
-          </Button>
         </div>
       )}
     </div>

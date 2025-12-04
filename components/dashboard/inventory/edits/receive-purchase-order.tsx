@@ -85,22 +85,56 @@ export const ReceivePurchaseOrder: FC = () => {
               setInvSelectorOpen(false);
             }}
           />
-          Purchase Order Items
+          <div className="flex flex-wrap justify-between items-center">
+            Purchase Order Items
+            <Button
+              onPress={() => {
+                const updatedCompositeItems = invStore!.list.map(
+                  (compItem) => ({
+                    ...compItem,
+                    receive: compItem.quantity - compItem.counted,
+                  })
+                );
+                invStore.setList(updatedCompositeItems);
+              }}
+            >
+              Received All
+            </Button>
+          </div>
           <Table aria-label="Example static collection table">
             <TableHeader>
               <TableColumn>Name</TableColumn>
-              <TableColumn>Cost</TableColumn>
-              <TableColumn>Quantity</TableColumn>
-              <TableColumn>Amount</TableColumn>
+              <TableColumn>Ordered</TableColumn>
+              <TableColumn>Received</TableColumn>
+              <TableColumn>To Receive</TableColumn>
             </TableHeader>
             <TableBody>
               {invStore.list.map((item, key) => (
                 <TableRow key={key}>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell>{toLocalCurrency(item.cost)}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
+                  <TableCell>{item.counted}</TableCell>
                   <TableCell>
-                    {toLocalCurrency(item.cost * item.quantity)}
+                    <Input
+                      value={item.receive.toString()}
+                      onChange={(e) => {
+                        let newQuantity = e.target.value;
+                        if (isNaN(Number(newQuantity))) {
+                          newQuantity = "0";
+                        }
+                        const updatedCompositeItems = invStore!.list.map(
+                          (compItem) =>
+                            compItem.id === item.id
+                              ? {
+                                  ...compItem,
+                                  receive: Number(newQuantity),
+                                }
+                              : compItem // Keep other items unchanged
+                        );
+
+                        invStore.setList(updatedCompositeItems);
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -111,10 +145,10 @@ export const ReceivePurchaseOrder: FC = () => {
             isLoading={purchaseOrders.loading}
             onPress={() => {
               localPurchaseOrder.inventoryItems = invStore.list;
-              purchaseOrders.createPurchaseOrder(localPurchaseOrder);
+              purchaseOrders.completePurchaseOrder(localPurchaseOrder);
             }}
           >
-            Create Item
+            Complete
           </Button>
         </div>
       )}

@@ -9,7 +9,9 @@ export interface InvItem {
   receive: number;
   counted: number;
   updated: boolean;
+  inStock: number;
 }
+
 export interface TPurchaseOrder {
   _id: any;
   createdAt?: string;

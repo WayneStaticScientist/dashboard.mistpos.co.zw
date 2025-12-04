@@ -14,36 +14,36 @@ import {
   TableRow,
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
+import { MistDateUtils } from "@/utils/date-utils";
+import { InventoryConstants } from "@/utils/inventory";
 import { useNavigation } from "@/stores/use-navigation";
 import NormalError from "@/components/errors/normal-errror";
 import { NormalLoader } from "@/components/loaders/normal-loader";
-import { usePurchaseOrderStore } from "@/stores/purchase-order-store";
-import { InventoryConstants } from "@/utils/inventory";
-import { MistDateUtils } from "@/utils/date-utils";
+import { useTransferOrderStore } from "@/stores/transfer-order-store";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const PurchaseOrdersNav = () => {
+export const TransferOrdersNav = () => {
   const navigation = useNavigation();
   const [status, setStatus] = useState("");
-  const purchaseOrders = usePurchaseOrderStore();
+  const transferOrders = useTransferOrderStore();
   const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
-    purchaseOrders.fetchPurchaseOrders(1);
+    transferOrders.fetchTransferOrders(1);
   }, []);
-  if (purchaseOrders.loading) {
+  if (transferOrders.loading) {
     return <NormalLoader />;
   }
-  if (!purchaseOrders.loaded) {
+  if (!transferOrders.loaded) {
     return <NormalError message="failed to Purchase Orders" />;
   }
   return (
     <Fragment>
       <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
         <input
-          placeholder="Search Purchase Orders"
+          placeholder="Search Transfer Orders"
           onKeyDown={(e) => {
             if (e.key != "Enter") return;
             e.preventDefault();
-            purchaseOrders.fetchPurchaseOrders(1, searchInput, status);
+            transferOrders.fetchTransferOrders(1, searchInput, status);
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -54,13 +54,13 @@ export const PurchaseOrdersNav = () => {
         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
       </div>
       <div className="my-3 flex w-full overflow-x-auto items-center gap-2 cursor-pointer select-none">
-        {InventoryConstants.purchaseOrderStatus.map((state, index) => (
+        {InventoryConstants.adjustStockReasonsMain.map((state, index) => (
           <Chip
             color={status == state.value ? "primary" : "default"}
             key={index}
             onClick={() => {
               setStatus(state.value);
-              purchaseOrders.fetchPurchaseOrders(1, searchInput, state.value);
+              transferOrders.fetchTransferOrders(1, searchInput, state.value);
             }}
           >
             {state.label}
@@ -69,15 +69,15 @@ export const PurchaseOrdersNav = () => {
       </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-[#e6e6e610] flex-wrap flex items-center text-foreground justify-between">
-            <h2 className="font-semibold">Purchase Orders</h2>
+          <div className="p-4 border-b border-[#e6e6e610] flex flex-wrap items-center text-foreground justify-between">
+            <h2 className="font-semibold">TransferOrders</h2>
             <div className="text-sm text-foreground flex items-center gap-2">
-              {purchaseOrders.list.length} items
+              {transferOrders.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createPurchaseOrder")}
+                onPress={() => navigation.setPage("createStockAdjustment")}
               >
-                New PurchaseOrder
+                New StockAdjument
               </Button>
             </div>
           </div>
@@ -88,27 +88,25 @@ export const PurchaseOrdersNav = () => {
             >
               <TableHeader>
                 <TableColumn>Item Name</TableColumn>
-                <TableColumn>Status</TableColumn>
+                <TableColumn># Items</TableColumn>
                 <TableColumn>Date</TableColumn>
                 <TableColumn>View</TableColumn>
               </TableHeader>
               <TableBody>
-                {purchaseOrders.list.map((e, index) => {
+                {transferOrders.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell className="flex items-center gap-1">
-                        {e.label}
-                      </TableCell>
-                      <TableCell>{e.status}</TableCell>
-                      <TableCell className="flex items-center gap-1">
+                      <TableCell>{e.label}</TableCell>
+                      <TableCell>{`${e.inventoryItems.length} items`}</TableCell>
+                      <TableCell>
                         {e.createdAt && MistDateUtils.formatDate(e.createdAt)}
                       </TableCell>
                       <TableCell>
                         <Button
                           isIconOnly
                           onPress={() => {
-                            purchaseOrders.setPurchaseOrderForEdit(e);
-                            navigation.setPage("viewPurchaseOrder");
+                            transferOrders.setTransferOrderForEdit(e);
+                            navigation.setPage("viewTransferOrder");
                           }}
                         >
                           <BiEdit />
@@ -124,11 +122,11 @@ export const PurchaseOrdersNav = () => {
       </section>
       <Pagination
         onChange={(page) =>
-          purchaseOrders.fetchPurchaseOrders(page, searchInput, status)
+          transferOrders.fetchTransferOrders(page, searchInput, status)
         }
-        isDisabled={purchaseOrders.loading}
-        initialPage={purchaseOrders.page}
-        total={purchaseOrders.totalPages}
+        isDisabled={transferOrders.loading}
+        initialPage={transferOrders.page}
+        total={transferOrders.totalPages}
         className=" py-6"
       />
     </Fragment>

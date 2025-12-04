@@ -4,7 +4,6 @@ import { Fragment } from "react/jsx-runtime";
 import { MagnifyingGlassIcon as IconSearch } from "@heroicons/react/24/outline";
 import {
   Button,
-  Chip,
   Pagination,
   Table,
   TableBody,
@@ -14,36 +13,57 @@ import {
   TableRow,
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
+import { LuDelete } from "react-icons/lu";
+import { TSupplier } from "@/types/supplier-t";
 import { useNavigation } from "@/stores/use-navigation";
+import { useSupplierStore } from "@/stores/suppliers-store";
 import NormalError from "@/components/errors/normal-errror";
 import { NormalLoader } from "@/components/loaders/normal-loader";
-import { usePurchaseOrderStore } from "@/stores/purchase-order-store";
-import { InventoryConstants } from "@/utils/inventory";
-import { MistDateUtils } from "@/utils/date-utils";
+import { UniversalDeleteModel } from "@/components/layouts/universal-delete-modal";
+import { errorToast } from "@/utils/toaster";
+import { decodeFromAxios } from "@/utils/errors";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const PurchaseOrdersNav = () => {
+export const SuppliersNav = () => {
   const navigation = useNavigation();
-  const [status, setStatus] = useState("");
-  const purchaseOrders = usePurchaseOrderStore();
+  const suppliers = useSupplierStore();
+  const [selectedSupplier, setSelectedSupplier] = useState<TSupplier | null>(
+    null
+  );
   const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
-    purchaseOrders.fetchPurchaseOrders(1);
+    suppliers.fetchSuppliers(1);
   }, []);
-  if (purchaseOrders.loading) {
+  if (suppliers.loading) {
     return <NormalLoader />;
   }
-  if (!purchaseOrders.loaded) {
-    return <NormalError message="failed to Purchase Orders" />;
+  if (!suppliers.loaded) {
+    return <NormalError message="failed to load Suppliers" />;
   }
   return (
     <Fragment>
+      <UniversalDeleteModel
+        onCloseModal={() => setSelectedSupplier(null)}
+        title={"Delete Supplier"}
+        show={selectedSupplier != null}
+        summary={`delete supplier ${selectedSupplier?.name}`}
+        isLoading={suppliers.loading}
+        onDelete={async () => {
+          try {
+            await suppliers.deleteSupplier(selectedSupplier!);
+            suppliers.fetchSuppliers(1);
+            setSelectedSupplier(null);
+          } catch (e) {
+            return errorToast(decodeFromAxios(e).message);
+          }
+        }}
+      />
       <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
         <input
-          placeholder="Search Purchase Orders"
+          placeholder="Search Suppliers"
           onKeyDown={(e) => {
             if (e.key != "Enter") return;
             e.preventDefault();
-            purchaseOrders.fetchPurchaseOrders(1, searchInput, status);
+            suppliers.fetchSuppliers(1, searchInput);
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -53,31 +73,17 @@ export const PurchaseOrdersNav = () => {
         />
         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
       </div>
-      <div className="my-3 flex w-full overflow-x-auto items-center gap-2 cursor-pointer select-none">
-        {InventoryConstants.purchaseOrderStatus.map((state, index) => (
-          <Chip
-            color={status == state.value ? "primary" : "default"}
-            key={index}
-            onClick={() => {
-              setStatus(state.value);
-              purchaseOrders.fetchPurchaseOrders(1, searchInput, state.value);
-            }}
-          >
-            {state.label}
-          </Chip>
-        ))}
-      </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-[#e6e6e610] flex-wrap flex items-center text-foreground justify-between">
-            <h2 className="font-semibold">Purchase Orders</h2>
+          <div className="p-4 border-b border-[#e6e6e610] flex flex-wrap items-center text-foreground justify-between">
+            <h2 className="font-semibold">Suppliers</h2>
             <div className="text-sm text-foreground flex items-center gap-2">
-              {purchaseOrders.list.length} items
+              {suppliers.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createPurchaseOrder")}
+                onPress={() => navigation.setPage("createSupplier")}
               >
-                New PurchaseOrder
+                Add Supplier
               </Button>
             </div>
           </div>
@@ -87,31 +93,36 @@ export const PurchaseOrdersNav = () => {
               className="text-sm table-auto w-max sm:w-full"
             >
               <TableHeader>
-                <TableColumn>Item Name</TableColumn>
-                <TableColumn>Status</TableColumn>
-                <TableColumn>Date</TableColumn>
-                <TableColumn>View</TableColumn>
+                <TableColumn>Supplier Name</TableColumn>
+                <TableColumn>Email</TableColumn>
+                <TableColumn>Edit</TableColumn>
+                <TableColumn>Delete</TableColumn>
               </TableHeader>
               <TableBody>
-                {purchaseOrders.list.map((e, index) => {
+                {suppliers.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
                       <TableCell className="flex items-center gap-1">
-                        {e.label}
+                        {e.name}
                       </TableCell>
-                      <TableCell>{e.status}</TableCell>
-                      <TableCell className="flex items-center gap-1">
-                        {e.createdAt && MistDateUtils.formatDate(e.createdAt)}
-                      </TableCell>
+                      <TableCell>{e.email}</TableCell>
                       <TableCell>
                         <Button
                           isIconOnly
                           onPress={() => {
-                            purchaseOrders.setPurchaseOrderForEdit(e);
-                            navigation.setPage("viewPurchaseOrder");
+                            suppliers.setSupplierForEdit(e);
+                            navigation.setPage("editSupplier");
                           }}
                         >
                           <BiEdit />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          isIconOnly
+                          onPress={() => setSelectedSupplier(e)}
+                        >
+                          <LuDelete />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -123,12 +134,10 @@ export const PurchaseOrdersNav = () => {
         </div>
       </section>
       <Pagination
-        onChange={(page) =>
-          purchaseOrders.fetchPurchaseOrders(page, searchInput, status)
-        }
-        isDisabled={purchaseOrders.loading}
-        initialPage={purchaseOrders.page}
-        total={purchaseOrders.totalPages}
+        onChange={(page) => suppliers.fetchSuppliers(page)}
+        isDisabled={suppliers.loading}
+        initialPage={suppliers.page}
+        total={suppliers.totalPages}
         className=" py-6"
       />
     </Fragment>

@@ -13,5 +13,6 @@ export const convertProductToInvItem = (product: TProduct): InvItem => {
     receive: 0,
     counted: 0,
     updated: false,
+    inStock: product.stockQuantity,
   };
 };

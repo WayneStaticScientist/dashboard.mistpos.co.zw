@@ -1,17 +1,13 @@
-export interface InvItemStock {
-  id: string;
-  sku: string;
-  cost: number;
-  name: string;
-  amount: number;
-  barcode: string;
-  quantity: number;
-}
+import { InvItem } from "./purchase-order-t";
+
 export interface TStockAdjustment {
+  _id: any;
   notes: string;
   label: string;
   reason: string;
   company: string;
   senderId: string;
-  inventoryItems: InvItemStock[];
+  createdAt?: string;
+  updatedAt?: string;
+  inventoryItems: InvItem[];
 }

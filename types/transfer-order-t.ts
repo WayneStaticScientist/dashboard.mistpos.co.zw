@@ -1,3 +1,5 @@
+import { InvItem } from "./purchase-order-t";
+
 export interface TransferInvItem {
   id: string;
   name: string;
@@ -9,10 +11,12 @@ export interface TransferInvItem {
   updated: boolean;
 }
 export interface TTransferOrder {
+  _id: any;
   label: string;
   notes: string;
-  inventoryItems: TransferInvItem[];
+  inventoryItems: InvItem[];
   senderId: string;
   company: string;
   toCompany: string;
+  createdAt?: string;
 }

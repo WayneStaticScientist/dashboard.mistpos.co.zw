@@ -8,6 +8,7 @@ import { TPurchaseOrder } from "@/types/purchase-order-t";
 export const usePurchaseOrderStore = create<{
   updatePurchaseOrder: (localPurchaseOrder: TPurchaseOrder) => void;
   createPurchaseOrder: (localPurchaseOrder: TPurchaseOrder) => void;
+  completePurchaseOrder: (localPurchaseOrder: TPurchaseOrder) => void;
   focusedPurchaseOrder?: TPurchaseOrder;
   setPurchaseOrderForEdit: (e: TPurchaseOrder) => void;
   deletePurchaseOrder: (arg0: TPurchaseOrder) => void;
@@ -24,6 +25,27 @@ export const usePurchaseOrderStore = create<{
     loading: false,
     loaded: false,
     list: [],
+    completePurchaseOrder: async (localPurchaseOrder: TPurchaseOrder) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        const result = await apiClient.put(
+          `/admin/inventory/purchase-order-receive/${localPurchaseOrder._id}`,
+          localPurchaseOrder
+        );
+        set((state) => {
+          state.focusedPurchaseOrder = result.data.update;
+        });
+        success(`Purchase Order Counted successffuly`);
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
     updatePurchaseOrder: (localPurchaseOrder: TPurchaseOrder) => {
       try {
         set((state) => {
