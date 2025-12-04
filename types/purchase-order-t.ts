@@ -11,6 +11,9 @@ export interface InvItem {
   updated: boolean;
 }
 export interface TPurchaseOrder {
+  _id: any;
+  createdAt?: string;
+  updatedAt?: string;
   expectedDate: string;
   notes: string;
   sellerId: string;

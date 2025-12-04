@@ -16,11 +16,16 @@ import { AddModifierNav } from "@/components/dashboard/creations/add_modifier";
 import { DiscountsNav } from "@/components/dashboard/discounts-view";
 import { EditDiscountsNav } from "@/components/dashboard/edits/discounts-edit";
 import { AddDiscountsNav } from "@/components/dashboard/creations/add_discount";
+import { PurchaseOrdersNav } from "@/components/dashboard/inventory/purchase-orders-view";
+import { AddPurchaseOrder } from "@/components/dashboard/inventory/creations/add-purchase-order";
+import { ViewPurchaseOrder } from "@/components/dashboard/inventory/edits/view-purchase-order";
+import { ReceivePurchaseOrder } from "@/components/dashboard/inventory/edits/receive-purchase-order";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
   shifts: ShiftsNav,
   receits: ReceitsNav,
+  po: PurchaseOrdersNav,
   products: ProductsNav,
   modifiers: ModifiersNav,
   discounts: DiscountsNav,
@@ -36,6 +41,9 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,
+  viewPurchaseOrder: ViewPurchaseOrder,
+  createPurchaseOrder: AddPurchaseOrder,
+  receivePurchaseOrder: ReceivePurchaseOrder,
 };
 
 export const MistNavigation = ({ path }: { path: string }) => {

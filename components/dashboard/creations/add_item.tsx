@@ -113,7 +113,17 @@ export const ItemModelCreate: FC = () => {
         >
           Item Is Available For Sale
         </Checkbox>
-        <Select className="w-full" label="Select Category">
+        <Select
+          className="w-full"
+          label="Select Category"
+          value={localProduct.category}
+          onChange={(e) => {
+            setLocalProduct({
+              ...localProduct!,
+              category: e.target.value,
+            });
+          }}
+        >
           {categories.list.map((category) => (
             <SelectItem key={category._id}>{category.name}</SelectItem>
           ))}

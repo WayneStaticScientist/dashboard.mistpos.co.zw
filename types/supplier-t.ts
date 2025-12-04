@@ -1,4 +1,5 @@
 export interface TSupplier {
+  _id: any;
   name: string;
   city: string;
   notes: string;
