@@ -7,6 +7,7 @@ export const convertProductToInvItem = (product: TProduct): InvItem => {
     name: product.name,
     cost: product.cost,
     quantity: 0,
+    count: product.stockQuantity,
     amount: product.price,
     sku: product.sku,
     barcode: product.barcode,
@@ -14,5 +15,7 @@ export const convertProductToInvItem = (product: TProduct): InvItem => {
     counted: 0,
     updated: false,
     inStock: product.stockQuantity,
+    difference: 0,
+    costDifference: 0,
   };
 };

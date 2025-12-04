@@ -12,6 +12,11 @@ export const useProductsStore = create<{
   loaded: boolean;
   totalPages: number;
   fetchProducts: (page: number, search?: string) => void;
+  fetchProductsAsync: (
+    page: number,
+    limit: number,
+    search?: string
+  ) => Promise<TProduct[] | []>;
   setProductForEdit: (product?: TProduct) => void;
   list: TProduct[];
 }>()(
@@ -21,6 +26,32 @@ export const useProductsStore = create<{
     loading: true,
     loaded: false,
     list: [],
+    fetchProductsAsync: async (
+      page: number,
+      limit: number,
+      search?: string
+    ): Promise<TProduct[]> => {
+      try {
+        set((state) => {
+          state.loading = true;
+          state.loaded = false;
+        });
+        const response = await apiClient.get(
+          `/cashier/products?page=${page}&search=${search ?? ""}&limit=${limit}`
+        );
+        set((state) => {
+          state.loading = false;
+          state.loaded = true;
+        });
+        return response.data.list;
+      } catch (e) {
+        set((state) => {
+          state.loading = false;
+          state.loaded = false;
+        });
+      }
+      return [];
+    },
     setProductForEdit: (product?: TProduct) => {
       set((state) => {
         state.focusedProduct = product;

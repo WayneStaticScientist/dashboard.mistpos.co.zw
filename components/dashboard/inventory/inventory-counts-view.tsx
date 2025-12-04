@@ -11,15 +11,16 @@ import {
   Pagination,
   TableColumn,
   TableHeader,
+  Chip,
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { MistDateUtils } from "@/utils/date-utils";
 import { toLocalCurrency } from "@/utils/currencies";
+import { InventoryConstants } from "@/utils/inventory";
 import { useNavigation } from "@/stores/use-navigation";
 import NormalError from "@/components/errors/normal-errror";
 import { NormalLoader } from "@/components/loaders/normal-loader";
 import { useInventoryCountsStore } from "@/stores/inventory-counts-stores";
-import { InventoryConstants } from "@/utils/inventory";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
 export const InventoryCountsNav = () => {
   const navigation = useNavigation();
@@ -53,6 +54,20 @@ export const InventoryCountsNav = () => {
         />
         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
       </div>
+      <div className="my-3 flex w-full overflow-x-auto items-center gap-2 cursor-pointer select-none">
+        {InventoryConstants.inventoryCountStatus.map((state, index) => (
+          <Chip
+            color={status == state.value ? "primary" : "default"}
+            key={index}
+            onClick={() => {
+              setStatus(state.value);
+              inventoryCounts.fetchInventoryCounts(1, searchInput, state.value);
+            }}
+          >
+            {state.label}
+          </Chip>
+        ))}
+      </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 flex-wrap border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
@@ -61,7 +76,7 @@ export const InventoryCountsNav = () => {
               {inventoryCounts.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createStockAdjustment")}
+                onPress={() => navigation.setPage("createInventoryCount")}
               >
                 New InventoryCount
               </Button>

@@ -18,33 +18,48 @@ import { MistDateUtils } from "@/utils/date-utils";
 import { toLocalCurrency } from "@/utils/currencies";
 import { InventoryConstants } from "@/utils/inventory";
 import { useNavigation } from "@/stores/use-navigation";
+import { useProductsStore } from "@/stores/product-stores";
 import { TInventoryCounts } from "@/types/inventory-count-t";
+import NormalError from "@/components/errors/normal-errror";
 import { useInvSelect } from "@/stores/use-inv-select-store";
+import { convertProductToInvItem } from "@/utils/inv-converter";
 import { MistDivider } from "@/components/layouts/mist-divider";
+import { NormalLoader } from "@/components/loaders/normal-loader";
 import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
 import { useInventoryCountsStore } from "@/stores/inventory-counts-stores";
 
 export const ViewInventoryCount: FC = () => {
   const invStore = useInvSelect();
+  const items = useProductsStore();
   const navigation = useNavigation();
   const inventoryCount = useInventoryCountsStore();
   const [invSelectorOpen, setInvSelectorOpen] = useState(false);
   const [LocalinventoryCount, setLocalinventoryCount] =
     useState<TInventoryCounts | null>();
-  const initializeLocalProduct = (
+  const initializeLocalProduct = async (
     inventoryCountProp?: TInventoryCounts | null
   ) => {
     if (inventoryCountProp) {
       setLocalinventoryCount({ ...inventoryCountProp });
+      if (
+        inventoryCountProp.countBasedOn == "*" &&
+        inventoryCountProp.status == "pending"
+      ) {
+        invStore.setList([]);
+        invStore.setList(
+          (await items.fetchProductsAsync(1, 100)).map((e) =>
+            convertProductToInvItem(e)
+          )
+        );
+      } else {
+        invStore.setList(inventoryCountProp.inventoryItems);
+      }
     } else {
       setLocalinventoryCount(null);
     }
   };
 
   useEffect(() => {
-    invStore.setList(
-      inventoryCount?.focusedInventoryCounts?.inventoryItems || []
-    );
     initializeLocalProduct(inventoryCount.focusedInventoryCounts);
   }, [inventoryCount.focusedInventoryCounts]);
 
@@ -109,28 +124,36 @@ export const ViewInventoryCount: FC = () => {
           )}
           <MistDivider />
           InventoryCount Items
-          <Table aria-label="Example static collection table">
-            <TableHeader>
-              <TableColumn>Name</TableColumn>
-              <TableColumn>Price</TableColumn>
-              <TableColumn>Stock</TableColumn>
-              <TableColumn>Counted</TableColumn>
-              <TableColumn>Difference</TableColumn>
-              <TableColumn>Cost Difference</TableColumn>
-            </TableHeader>
-            <TableBody>
-              {invStore.list.map((item, key) => (
-                <TableRow key={key}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{toLocalCurrency(item.cost)}</TableCell>
-                  <TableCell>{item.count}</TableCell>
-                  <TableCell>{item.counted}</TableCell>
-                  <TableCell>{item.difference}</TableCell>
-                  <TableCell>{toLocalCurrency(item.costDifference)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {items.loading && <NormalLoader />}
+          {items.loaded && (
+            <Table aria-label="Example static collection table">
+              <TableHeader>
+                <TableColumn>Name</TableColumn>
+                <TableColumn>Price</TableColumn>
+                <TableColumn>Stock</TableColumn>
+                <TableColumn>Counted</TableColumn>
+                <TableColumn>Difference</TableColumn>
+                <TableColumn>Cost Difference</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {invStore.list.map((item, key) => (
+                  <TableRow key={key}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{toLocalCurrency(item.cost)}</TableCell>
+                    <TableCell>{item.count}</TableCell>
+                    <TableCell>{item.counted}</TableCell>
+                    <TableCell>{item.difference}</TableCell>
+                    <TableCell>
+                      {toLocalCurrency(item.costDifference)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+          {!items.loaded && !items.loading && (
+            <NormalError message={"Fail to Load inv items"} />
+          )}
         </div>
       )}
     </div>

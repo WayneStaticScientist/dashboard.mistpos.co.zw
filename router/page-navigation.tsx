@@ -32,6 +32,7 @@ import { AddTransferOrder } from "@/components/dashboard/inventory/creations/add
 import { InventoryCountsNav } from "@/components/dashboard/inventory/inventory-counts-view";
 import { ViewInventoryCount } from "@/components/dashboard/inventory/edits/view-inventory-count";
 import { CountInventory } from "@/components/dashboard/inventory/edits/count-inventory";
+import { AddInventoryCount } from "@/components/dashboard/inventory/creations/add-inventory-count";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
@@ -66,6 +67,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   createPurchaseOrder: AddPurchaseOrder,
   viewInventoryCount: ViewInventoryCount,
   viewStockAdjusment: ViewStockAdjustment,
+  createInventoryCount: AddInventoryCount,
   receivePurchaseOrder: ReceivePurchaseOrder,
   createStockAdjustment: AddStockAdjustment,
 };

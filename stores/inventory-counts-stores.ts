@@ -4,6 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
 import { TInventoryCounts } from "@/types/inventory-count-t";
+import toast from "react-hot-toast";
 
 export const useInventoryCountsStore = create<{
   updateInventoryCounts: (localInventoryCounts: TInventoryCounts) => void;
@@ -55,11 +56,8 @@ export const useInventoryCountsStore = create<{
           state.loading = true;
         });
         localInventoryCounts._id = null;
-        await apiClient.post(
-          `/admin/inventory/transfer-order`,
-          localInventoryCounts
-        );
-        success(`Stock Has been transferred succesfully`);
+        await apiClient.post(`/admin/inventory/counts`, localInventoryCounts);
+        success(`Inventory Count has been added succesfully`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
