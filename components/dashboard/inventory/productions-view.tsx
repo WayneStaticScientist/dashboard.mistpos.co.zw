@@ -79,9 +79,7 @@ export const ProductionsNav = () => {
                 {productions.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell className="flex items-center gap-1">
-                        {e.label}
-                      </TableCell>
+                      <TableCell>{e.label}</TableCell>
                       <TableCell>
                         {e.createdAt && MistDateUtils.formatDate(e.createdAt)}
                       </TableCell>

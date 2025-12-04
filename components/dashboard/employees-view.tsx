@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
+import NormalError from "../errors/normal-errror";
+import { NormalLoader } from "../loaders/normal-loader";
 import { MagnifyingGlassIcon as IconSearch } from "@heroicons/react/24/outline";
 import {
   Button,
@@ -14,44 +16,42 @@ import {
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
-import { TSupplier } from "@/types/supplier-t";
 import { useNavigation } from "@/stores/use-navigation";
-import { useSupplierStore } from "@/stores/suppliers-store";
-import NormalError from "@/components/errors/normal-errror";
-import { NormalLoader } from "@/components/loaders/normal-loader";
-import { UniversalDeleteModel } from "@/components/layouts/universal-delete-modal";
+import { useEmployeesStore } from "@/stores/employees-store";
+import { TUser } from "@/types/user-t";
+import { UniversalDeleteModel } from "../layouts/universal-delete-modal";
 import { errorToast } from "@/utils/toaster";
 import { decodeFromAxios } from "@/utils/errors";
+import useSessionState from "@/stores/session-store";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const SuppliersNav = () => {
+export const EmployeesNav = () => {
+  const session = useSessionState();
   const navigation = useNavigation();
-  const suppliers = useSupplierStore();
-  const [selectedSupplier, setSelectedSupplier] = useState<TSupplier | null>(
-    null
-  );
+  const employees = useEmployeesStore();
+  const [selectedEmployee, setSelectedEmployee] = useState<TUser | null>(null);
   const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
-    suppliers.fetchSuppliers(1);
+    employees.fetchEmployees(1);
   }, []);
-  if (suppliers.loading) {
+  if (employees.loading) {
     return <NormalLoader />;
   }
-  if (!suppliers.loaded) {
-    return <NormalError message="failed to load Suppliers" />;
+  if (!employees.loaded) {
+    return <NormalError message="failed to load Employees" />;
   }
   return (
     <Fragment>
       <UniversalDeleteModel
-        onCloseModal={() => setSelectedSupplier(null)}
-        title={"Delete Supplier"}
-        show={selectedSupplier != null}
-        summary={`delete supplier ${selectedSupplier?.name}`}
-        isLoading={suppliers.loading}
+        onCloseModal={() => setSelectedEmployee(null)}
+        title={"Delete Employee"}
+        show={selectedEmployee != null}
+        summary={`delete employee ${selectedEmployee?.fullName}`}
+        isLoading={employees.loading}
         onDelete={async () => {
           try {
-            await suppliers.deleteSupplier(selectedSupplier!);
-            suppliers.fetchSuppliers(1);
-            setSelectedSupplier(null);
+            await employees.deleteEmployee(selectedEmployee!);
+            employees.fetchEmployees(1);
+            setSelectedEmployee(null);
           } catch (e) {
             return errorToast(decodeFromAxios(e).message);
           }
@@ -59,11 +59,11 @@ export const SuppliersNav = () => {
       />
       <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
         <input
-          placeholder="Search Suppliers"
+          placeholder="Search employees"
           onKeyDown={(e) => {
             if (e.key != "Enter") return;
             e.preventDefault();
-            suppliers.fetchSuppliers(1, searchInput);
+            employees.fetchEmployees(1, searchInput);
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -75,15 +75,15 @@ export const SuppliersNav = () => {
       </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-[#e6e6e610] flex flex-wrap items-center text-foreground justify-between">
-            <h2 className="font-semibold">Suppliers</h2>
+          <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
+            <h2 className="font-semibold">Employees</h2>
             <div className="text-sm text-foreground flex items-center gap-2">
-              {suppliers.list.length} items
+              {employees.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createSupplier")}
+                onPress={() => navigation.setPage("createEmployee")}
               >
-                Add Supplier
+                Add Employee
               </Button>
             </div>
           </div>
@@ -93,23 +93,25 @@ export const SuppliersNav = () => {
               className="text-sm table-auto w-max sm:w-full"
             >
               <TableHeader>
-                <TableColumn>Supplier Name</TableColumn>
+                <TableColumn>Employee</TableColumn>
                 <TableColumn>Email</TableColumn>
                 <TableColumn>Edit</TableColumn>
                 <TableColumn>Delete</TableColumn>
               </TableHeader>
               <TableBody>
-                {suppliers.list.map((e, index) => {
+                {employees.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell>{e.name}</TableCell>
+                      <TableCell>
+                        {e.email == session.email && "(YOU)"} {e.fullName}
+                      </TableCell>
                       <TableCell>{e.email}</TableCell>
                       <TableCell>
                         <Button
                           isIconOnly
                           onPress={() => {
-                            suppliers.setSupplierForEdit(e);
-                            navigation.setPage("editSupplier");
+                            employees.setEmployeeForEdit(e);
+                            navigation.setPage("editEmployee");
                           }}
                         >
                           <BiEdit />
@@ -118,7 +120,7 @@ export const SuppliersNav = () => {
                       <TableCell>
                         <Button
                           isIconOnly
-                          onPress={() => setSelectedSupplier(e)}
+                          onPress={() => setSelectedEmployee(e)}
                         >
                           <LuDelete />
                         </Button>
@@ -132,10 +134,10 @@ export const SuppliersNav = () => {
         </div>
       </section>
       <Pagination
-        onChange={(page) => suppliers.fetchSuppliers(page)}
-        isDisabled={suppliers.loading}
-        initialPage={suppliers.page}
-        total={suppliers.totalPages}
+        onChange={(page) => employees.fetchEmployees(page)}
+        isDisabled={employees.loading}
+        initialPage={employees.page}
+        total={employees.totalPages}
         className=" py-6"
       />
     </Fragment>

@@ -96,11 +96,9 @@ export const PurchaseOrdersNav = () => {
                 {purchaseOrders.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell className="flex items-center gap-1">
-                        {e.label}
-                      </TableCell>
+                      <TableCell>{e.label}</TableCell>
                       <TableCell>{e.status}</TableCell>
-                      <TableCell className="flex items-center gap-1">
+                      <TableCell>
                         {e.createdAt && MistDateUtils.formatDate(e.createdAt)}
                       </TableCell>
                       <TableCell>

@@ -1,6 +1,7 @@
 export type TUser = {
   till: number;
   role: string;
+  pin?: string;
   phone: string;
   email: string;
   country: string;
@@ -9,9 +10,7 @@ export type TUser = {
   company: string;
   password: string;
   companies: string[];
-  accessToken: string;
   companyName: string;
-  refreshToken: string;
   pinnedInput: boolean;
   baseCurrence: string;
   permissions: string[];

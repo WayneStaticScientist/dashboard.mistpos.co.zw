@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
+import NormalError from "../errors/normal-errror";
+import { NormalLoader } from "../loaders/normal-loader";
 import { MagnifyingGlassIcon as IconSearch } from "@heroicons/react/24/outline";
 import {
   Button,
@@ -14,44 +16,45 @@ import {
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
-import { TSupplier } from "@/types/supplier-t";
-import { useNavigation } from "@/stores/use-navigation";
-import { useSupplierStore } from "@/stores/suppliers-store";
-import NormalError from "@/components/errors/normal-errror";
-import { NormalLoader } from "@/components/loaders/normal-loader";
-import { UniversalDeleteModel } from "@/components/layouts/universal-delete-modal";
 import { errorToast } from "@/utils/toaster";
 import { decodeFromAxios } from "@/utils/errors";
+import useSessionState from "@/stores/session-store";
+import { useNavigation } from "@/stores/use-navigation";
+import { useCustomerStore } from "@/stores/customers-store";
+import { UniversalDeleteModel } from "../layouts/universal-delete-modal";
+import { TCustomer } from "@/types/customer-t";
+import { toLocalCurrency } from "@/utils/currencies";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const SuppliersNav = () => {
+export const CustomersNav = () => {
+  const session = useSessionState();
   const navigation = useNavigation();
-  const suppliers = useSupplierStore();
-  const [selectedSupplier, setSelectedSupplier] = useState<TSupplier | null>(
+  const customers = useCustomerStore();
+  const [selectedCustomer, setSelectedCustomer] = useState<TCustomer | null>(
     null
   );
   const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
-    suppliers.fetchSuppliers(1);
+    customers.fetchCustomers(1);
   }, []);
-  if (suppliers.loading) {
+  if (customers.loading) {
     return <NormalLoader />;
   }
-  if (!suppliers.loaded) {
-    return <NormalError message="failed to load Suppliers" />;
+  if (!customers.loaded) {
+    return <NormalError message="failed to load Customers" />;
   }
   return (
     <Fragment>
       <UniversalDeleteModel
-        onCloseModal={() => setSelectedSupplier(null)}
-        title={"Delete Supplier"}
-        show={selectedSupplier != null}
-        summary={`delete supplier ${selectedSupplier?.name}`}
-        isLoading={suppliers.loading}
+        onCloseModal={() => setSelectedCustomer(null)}
+        title={"Delete Customer"}
+        show={selectedCustomer != null}
+        summary={`delete customer ${selectedCustomer?.fullName}`}
+        isLoading={customers.loading}
         onDelete={async () => {
           try {
-            await suppliers.deleteSupplier(selectedSupplier!);
-            suppliers.fetchSuppliers(1);
-            setSelectedSupplier(null);
+            await customers.deleteCustomer(selectedCustomer!);
+            customers.fetchCustomers(1);
+            setSelectedCustomer(null);
           } catch (e) {
             return errorToast(decodeFromAxios(e).message);
           }
@@ -59,11 +62,11 @@ export const SuppliersNav = () => {
       />
       <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
         <input
-          placeholder="Search Suppliers"
+          placeholder="Search customers"
           onKeyDown={(e) => {
             if (e.key != "Enter") return;
             e.preventDefault();
-            suppliers.fetchSuppliers(1, searchInput);
+            customers.fetchCustomers(1, searchInput);
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -75,15 +78,15 @@ export const SuppliersNav = () => {
       </div>
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-[#e6e6e610] flex flex-wrap items-center text-foreground justify-between">
-            <h2 className="font-semibold">Suppliers</h2>
+          <div className="p-4 border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
+            <h2 className="font-semibold">Customers</h2>
             <div className="text-sm text-foreground flex items-center gap-2">
-              {suppliers.list.length} items
+              {customers.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createSupplier")}
+                onPress={() => navigation.setPage("createCustomer")}
               >
-                Add Supplier
+                Add Customer
               </Button>
             </div>
           </div>
@@ -93,23 +96,33 @@ export const SuppliersNav = () => {
               className="text-sm table-auto w-max sm:w-full"
             >
               <TableHeader>
-                <TableColumn>Supplier Name</TableColumn>
+                <TableColumn>Employee</TableColumn>
                 <TableColumn>Email</TableColumn>
+                <TableColumn>Points</TableColumn>
+                <TableColumn>Visits</TableColumn>
+                <TableColumn>Total Purchase</TableColumn>
+                <TableColumn>Est Profit</TableColumn>
                 <TableColumn>Edit</TableColumn>
                 <TableColumn>Delete</TableColumn>
               </TableHeader>
               <TableBody>
-                {suppliers.list.map((e, index) => {
+                {customers.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell>{e.name}</TableCell>
+                      <TableCell>
+                        {e.email == session.email && "(YOU)"} {e.fullName}
+                      </TableCell>
                       <TableCell>{e.email}</TableCell>
+                      <TableCell>{e.points.toFixed(2)}</TableCell>
+                      <TableCell>{e.visits.toFixed(0)}</TableCell>
+                      <TableCell>{toLocalCurrency(e.purchaseValue)}</TableCell>
+                      <TableCell>{toLocalCurrency(e.inboundProfit)}</TableCell>
                       <TableCell>
                         <Button
                           isIconOnly
                           onPress={() => {
-                            suppliers.setSupplierForEdit(e);
-                            navigation.setPage("editSupplier");
+                            customers.setCustomerForEdit(e);
+                            navigation.setPage("editCustomer");
                           }}
                         >
                           <BiEdit />
@@ -118,7 +131,7 @@ export const SuppliersNav = () => {
                       <TableCell>
                         <Button
                           isIconOnly
-                          onPress={() => setSelectedSupplier(e)}
+                          onPress={() => setSelectedCustomer(e)}
                         >
                           <LuDelete />
                         </Button>
@@ -132,10 +145,10 @@ export const SuppliersNav = () => {
         </div>
       </section>
       <Pagination
-        onChange={(page) => suppliers.fetchSuppliers(page)}
-        isDisabled={suppliers.loading}
-        initialPage={suppliers.page}
-        total={suppliers.totalPages}
+        onChange={(page) => customers.fetchCustomers(page)}
+        isDisabled={customers.loading}
+        initialPage={customers.page}
+        total={customers.totalPages}
         className=" py-6"
       />
     </Fragment>

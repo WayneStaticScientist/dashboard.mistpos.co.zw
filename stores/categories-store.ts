@@ -24,12 +24,15 @@ export const useCategoriesStore = create<{
     loading: true,
     loaded: false,
     list: [],
-    updateCategory: (localCategory: TCategory) => {
+    updateCategory: async (localCategory: TCategory) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        apiClient.put(`/admin/category/${localCategory._id}`, localCategory);
+        await apiClient.put(
+          `/admin/category/${localCategory._id}`,
+          localCategory
+        );
         success(`${localCategory.name} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);

@@ -10,6 +10,7 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  NumberInput,
   Progress,
   Select,
   SelectItem,
@@ -111,24 +112,18 @@ export const CountInventory: FC = () => {
                     <TableCell>{toLocalCurrency(item.cost)}</TableCell>
                     <TableCell>{item.count}</TableCell>
                     <TableCell>
-                      <Input
-                        value={item.counted.toString()}
-                        onChange={(e) => {
-                          let newQuantity = e.target.value;
-                          if (isNaN(Number(newQuantity))) {
-                            newQuantity = "0";
-                          }
+                      <NumberInput
+                        value={item.counted}
+                        onValueChange={(e) => {
                           const updatedCompositeItems = invStore!.list.map(
                             (compItem) =>
                               compItem.id === item.id
                                 ? {
                                     ...compItem,
-                                    counted: Number(newQuantity),
-                                    difference:
-                                      Number(newQuantity) - item.count,
+                                    counted: e as number,
+                                    difference: (e as number) - item.count,
                                     costDifference:
-                                      item.cost *
-                                      (Number(newQuantity) - item.count),
+                                      item.cost * ((e as number) - item.count),
                                   }
                                 : compItem
                           );

@@ -16,8 +16,8 @@ export interface TCompany {
   owner: string;
   name: string;
   email: string;
-  paynow: Paynow;
+  paynow?: Paynow;
   hadTrialMode: boolean;
-  exchangeRates: TExchangeRates;
-  subscriptionType: SubscriptionType;
+  exchangeRates?: TExchangeRates;
+  subscriptionType?: SubscriptionType;
 }

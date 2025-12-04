@@ -1,4 +1,5 @@
 export type TCustomer = {
+  _id: any;
   email: string;
   city: string;
   notes: string;
