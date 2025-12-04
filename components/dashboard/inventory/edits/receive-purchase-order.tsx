@@ -36,7 +36,6 @@ import { MistDateUtils } from "@/utils/date-utils";
 export const ReceivePurchaseOrder: FC = () => {
   const invStore = useInvSelect();
   const navigation = useNavigation();
-  const suppliers = useSupplierStore();
   const purchaseOrders = usePurchaseOrderStore();
   const [createdAt, setCreatedAt] = useState("");
   const [expectedAt, setExpectedAt] = useState("");
@@ -48,7 +47,6 @@ export const ReceivePurchaseOrder: FC = () => {
   ) => {
     if (purchaseOrderProp) {
       setLocalPurchaseOrder({ ...purchaseOrderProp });
-      suppliers.fetchSupplier(purchaseOrderProp.sellerId);
       setCreatedAt(MistDateUtils.formatDate(purchaseOrderProp.createdAt ?? ""));
       setExpectedAt(MistDateUtils.formatDate(purchaseOrderProp.expectedDate));
     } else {

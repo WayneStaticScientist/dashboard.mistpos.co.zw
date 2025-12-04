@@ -33,6 +33,11 @@ import { InventoryCountsNav } from "@/components/dashboard/inventory/inventory-c
 import { ViewInventoryCount } from "@/components/dashboard/inventory/edits/view-inventory-count";
 import { CountInventory } from "@/components/dashboard/inventory/edits/count-inventory";
 import { AddInventoryCount } from "@/components/dashboard/inventory/creations/add-inventory-count";
+import { ProductionsNav } from "@/components/dashboard/inventory/productions-view";
+import { ViewProductions } from "@/components/dashboard/inventory/edits/view-productions";
+import { AddProductions } from "@/components/dashboard/inventory/creations/add-production";
+import { InventoryHistoryNav } from "@/components/dashboard/inventory/inventory-history";
+import { InventoryEvaluation } from "@/components/dashboard/inventory/inventory-evaluation";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
@@ -43,11 +48,14 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   po: PurchaseOrdersNav,
   products: ProductsNav,
   ic: InventoryCountsNav,
+  ih: InventoryHistoryNav,
   modifiers: ModifiersNav,
   sa: StockAdjustmentsNav,
+  iv: InventoryEvaluation,
   discounts: DiscountsNav,
   categories: CategoriesNav,
   editProduct: ItemModelEdit,
+  productions: ProductionsNav,
   dailySales: DailySalesReport,
   editModifier: EditModifierNav,
   editCategory: EditCategoryNav,
@@ -57,6 +65,8 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   createProduct: ItemModelCreate,
   editDiscount: EditDiscountsNav,
   createSupplier: AddSupplierNav,
+  createProduction: AddProductions,
+  editProduction: ViewProductions,
   createDiscount: AddDiscountsNav,
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,

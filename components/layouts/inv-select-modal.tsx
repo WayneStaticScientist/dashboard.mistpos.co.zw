@@ -17,18 +17,19 @@ import {
 import React from "react";
 import { FiSearch } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { errorToast } from "@/utils/toaster";
+import { MaterialColors } from "@/utils/colors";
 import { toLocalCurrency } from "@/utils/currencies";
+import { NormalLoader } from "../loaders/normal-loader";
 import { useProductsStore } from "@/stores/product-stores";
 import { useInvSelect } from "@/stores/use-inv-select-store";
 import { convertProductToInvItem } from "@/utils/inv-converter";
-import { NormalLoader } from "../loaders/normal-loader";
-import { MaterialColors } from "@/utils/colors";
 export const InvSelectionModal = ({
   open,
+  compositesOnly = false,
   onCloseModal,
 }: {
   open: boolean;
+  compositesOnly?: boolean;
   onCloseModal?: () => void;
 }) => {
   const [search, setSearch] = useState("");
@@ -40,7 +41,9 @@ export const InvSelectionModal = ({
 
   // 1. Fetch products when the component mounts
   useEffect(() => {
-    products.fetchProducts(1);
+    products.fetchProducts(1, "", {
+      composite: compositesOnly,
+    });
   }, []);
 
   // 2. Synchronize selectedKeys with invItems.list whenever invItems.list changes
@@ -107,7 +110,9 @@ export const InvSelectionModal = ({
                   <Button
                     isIconOnly
                     onPress={() => {
-                      products.fetchProducts(1, search);
+                      products.fetchProducts(1, search, {
+                        composite: compositesOnly,
+                      });
                     }}
                   >
                     <FiSearch />
@@ -175,7 +180,9 @@ export const InvSelectionModal = ({
                   total={products.totalPages}
                   isDisabled={products.loading}
                   onChange={(page) => {
-                    products.fetchProducts(page);
+                    products.fetchProducts(page, search, {
+                      composite: compositesOnly,
+                    });
                   }}
                 />
               </ModalBody>
