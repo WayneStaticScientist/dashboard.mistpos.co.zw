@@ -1,16 +1,7 @@
 "use client";
 import {
-  Accordion,
-  AccordionItem,
-  Button,
-  colors,
-  Listbox,
-  ListboxItem,
   Navbar,
   NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Progress,
   Table,
   TableBody,
   TableCell,
@@ -22,15 +13,13 @@ import { FC, useEffect, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { MistDateUtils } from "@/utils/date-utils";
 import { toLocalCurrency } from "@/utils/currencies";
+import { InventoryConstants } from "@/utils/inventory";
 import { useNavigation } from "@/stores/use-navigation";
 import { useSupplierStore } from "@/stores/suppliers-store";
 import { useInvSelect } from "@/stores/use-inv-select-store";
 import { TStockAdjustment } from "@/types/stock-ajustement-t";
-import { MistDivider } from "@/components/layouts/mist-divider";
-import { NormalLoader } from "@/components/loaders/normal-loader";
 import { useStockAdjustmentStore } from "@/stores/stockadjument-store";
 import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
-import { InventoryConstants } from "@/utils/inventory";
 
 export const ViewStockAdjustment: FC = () => {
   const invStore = useInvSelect();
@@ -166,7 +155,6 @@ export const ViewStockAdjustment: FC = () => {
                   ) : (
                     <TableCell>{item.quantity}</TableCell>
                   )}
-
                   <TableCell>
                     {LocalStockAdjustment.reason == "damaged" ||
                       (LocalStockAdjustment.reason == "loss" &&

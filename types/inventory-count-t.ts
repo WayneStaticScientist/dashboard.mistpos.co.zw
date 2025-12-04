@@ -1,3 +1,5 @@
+import { InvItem } from "./purchase-order-t";
+
 export interface InventoryChildCount {
   id: string;
   name: string;
@@ -9,14 +11,16 @@ export interface InventoryChildCount {
 }
 
 export interface TInventoryCounts {
+  _id: any;
   label: string;
   notes: string;
   status: string;
+  createdAt?: any;
   company: string;
   senderId: string;
   countBasedOn: string;
   totalCalculations: number;
   totalDifference: number;
   totalCostDifference: number;
-  inventoryItems: InventoryChildCount[];
+  inventoryItems: InvItem[];
 }

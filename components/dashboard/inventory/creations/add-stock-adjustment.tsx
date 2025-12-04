@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { FC, useEffect, useState } from "react";
-import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
+import { IoIosArrowBack, IoMdAdd, IoMdClose } from "react-icons/io";
 import { toLocalCurrency } from "@/utils/currencies";
 import { InventoryConstants } from "@/utils/inventory";
 import { useNavigation } from "@/stores/use-navigation";
@@ -41,7 +41,7 @@ export const AddStockAdjustment: FC = () => {
 
   useEffect(() => {
     invStore.setList([]);
-  }, [stockAdjustment.focusedStockAdjustment]);
+  }, []);
 
   return (
     <div className="w-full flex items-center justify-center">
@@ -210,7 +210,18 @@ export const AddStockAdjustment: FC = () => {
                     item.inStock + item.quantity}
                   {LocalStockAdjustment.reason == "count" && item.quantity}
                 </TableCell>
-                <TableCell>{""}</TableCell>
+                <TableCell>
+                  <Button
+                    isIconOnly
+                    onPress={() => {
+                      invStore.setList(
+                        invStore.list.filter((i) => i.id !== item.id)
+                      );
+                    }}
+                  >
+                    <IoMdClose />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

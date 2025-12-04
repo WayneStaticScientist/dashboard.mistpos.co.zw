@@ -4,49 +4,46 @@ import { Fragment } from "react/jsx-runtime";
 import { MagnifyingGlassIcon as IconSearch } from "@heroicons/react/24/outline";
 import {
   Button,
-  Chip,
-  Pagination,
   Table,
+  TableRow,
   TableBody,
   TableCell,
+  Pagination,
   TableColumn,
   TableHeader,
-  TableRow,
 } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { MistDateUtils } from "@/utils/date-utils";
-import { InventoryConstants } from "@/utils/inventory";
+import { toLocalCurrency } from "@/utils/currencies";
 import { useNavigation } from "@/stores/use-navigation";
 import NormalError from "@/components/errors/normal-errror";
 import { NormalLoader } from "@/components/loaders/normal-loader";
-import { useTransferOrderStore } from "@/stores/transfer-order-store";
-import { useCompanyStore } from "@/stores/companies-store";
+import { useInventoryCountsStore } from "@/stores/inventory-counts-stores";
+import { InventoryConstants } from "@/utils/inventory";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
-export const TransferOrdersNav = () => {
+export const InventoryCountsNav = () => {
   const navigation = useNavigation();
-  const companies = useCompanyStore();
-  const [company, setCompany] = useState("");
-  const transferOrders = useTransferOrderStore();
+  const [status, setStatus] = useState("");
+  const inventoryCounts = useInventoryCountsStore();
   const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
-    transferOrders.fetchTransferOrders(1);
-    companies.fetchCompanies(1);
+    inventoryCounts.fetchInventoryCounts(1);
   }, []);
-  if (transferOrders.loading) {
+  if (inventoryCounts.loading) {
     return <NormalLoader />;
   }
-  if (!transferOrders.loaded) {
-    return <NormalError message="failed to Purchase Orders" />;
+  if (!inventoryCounts.loaded) {
+    return <NormalError message="failed to Inventory Counts" />;
   }
   return (
     <Fragment>
       <div className="relative bg-[#e6e6e617] rounded-2xl w-full  md:w-72 my-3">
         <input
-          placeholder="Search Transfer Orders"
+          placeholder="Search Inventory Counts"
           onKeyDown={(e) => {
             if (e.key != "Enter") return;
             e.preventDefault();
-            transferOrders.fetchTransferOrders(1, searchInput, company);
+            inventoryCounts.fetchInventoryCounts(1, searchInput, status);
           }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -56,45 +53,17 @@ export const TransferOrdersNav = () => {
         />
         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground!" />
       </div>
-      {companies.loading ? (
-        <NormalLoader />
-      ) : (
-        <div className="my-3 flex w-full overflow-x-auto items-center gap-2 cursor-pointer select-none">
-          {[
-            {
-              name: "All",
-              _id: "",
-            },
-            ...companies.list,
-          ].map((_company, index) => (
-            <Chip
-              color={company == _company._id ? "primary" : "default"}
-              key={index}
-              onClick={() => {
-                setCompany(_company._id);
-                transferOrders.fetchTransferOrders(
-                  1,
-                  searchInput,
-                  _company._id
-                );
-              }}
-            >
-              {_company.name}
-            </Chip>
-          ))}
-        </div>
-      )}
       <section>
         <div className="lg:col-span-2 bg-background border border-[#e6e6e610] rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-[#e6e6e610] flex flex-wrap items-center text-foreground justify-between">
-            <h2 className="font-semibold">TransferOrders</h2>
+          <div className="p-4 flex-wrap border-b border-[#e6e6e610] flex items-center text-foreground justify-between">
+            <h2 className="font-semibold">Inventory Counts</h2>
             <div className="text-sm text-foreground flex items-center gap-2">
-              {transferOrders.list.length} items
+              {inventoryCounts.list.length} items
               <Button
                 color="primary"
-                onPress={() => navigation.setPage("createTransferOrder")}
+                onPress={() => navigation.setPage("createStockAdjustment")}
               >
-                New TransferOrder
+                New InventoryCount
               </Button>
             </div>
           </div>
@@ -105,25 +74,32 @@ export const TransferOrdersNav = () => {
             >
               <TableHeader>
                 <TableColumn>Item Name</TableColumn>
-                <TableColumn># Items</TableColumn>
                 <TableColumn>Date</TableColumn>
-                <TableColumn>View</TableColumn>
+                <TableColumn>Status</TableColumn>
+                <TableColumn>Cost Difference</TableColumn>
+                <TableColumn>Operations</TableColumn>
               </TableHeader>
               <TableBody>
-                {transferOrders.list.map((e, index) => {
+                {inventoryCounts.list.map((e, index) => {
                   return (
                     <TableRow key={index}>
                       <TableCell>{e.label}</TableCell>
-                      <TableCell>{`${e.inventoryItems.length} items`}</TableCell>
                       <TableCell>
-                        {e.createdAt && MistDateUtils.formatDate(e.createdAt)}
+                        {MistDateUtils.formatDate(e.createdAt)}
+                      </TableCell>
+                      <TableCell>
+                        {InventoryConstants.inventoryCountStatusObject[e.status]
+                          ?.label ?? "-"}
+                      </TableCell>
+                      <TableCell>
+                        {toLocalCurrency(e.totalCostDifference)}
                       </TableCell>
                       <TableCell>
                         <Button
                           isIconOnly
                           onPress={() => {
-                            transferOrders.setTransferOrderForEdit(e);
-                            navigation.setPage("viewTransferOrder");
+                            inventoryCounts.setInventoryCountsForEdit(e);
+                            navigation.setPage("viewInventoryCount");
                           }}
                         >
                           <BiEdit />
@@ -139,11 +115,11 @@ export const TransferOrdersNav = () => {
       </section>
       <Pagination
         onChange={(page) =>
-          transferOrders.fetchTransferOrders(page, searchInput, company)
+          inventoryCounts.fetchInventoryCounts(page, searchInput, status)
         }
-        isDisabled={transferOrders.loading}
-        initialPage={transferOrders.page}
-        total={transferOrders.totalPages}
+        isDisabled={inventoryCounts.loading}
+        initialPage={inventoryCounts.page}
+        total={inventoryCounts.totalPages}
         className=" py-6"
       />
     </Fragment>

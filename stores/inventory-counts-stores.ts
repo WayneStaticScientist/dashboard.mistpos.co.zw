@@ -3,20 +3,24 @@ import apiClient from "@/services/api-client";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
-import { TTransferOrder } from "@/types/transfer-order-t";
+import { TInventoryCounts } from "@/types/inventory-count-t";
 
-export const useTransferOrderStore = create<{
-  updateTransferOrder: (localTransferOrder: TTransferOrder) => void;
-  createTransferOrder: (localTransferOrder: TTransferOrder) => void;
-  focusedTransferOrder?: TTransferOrder;
-  setTransferOrderForEdit: (e: TTransferOrder) => void;
-  deleteTransferOrder: (arg0: TTransferOrder) => void;
+export const useInventoryCountsStore = create<{
+  updateInventoryCounts: (localInventoryCounts: TInventoryCounts) => void;
+  createInventoryCounts: (localInventoryCounts: TInventoryCounts) => void;
+  focusedInventoryCounts?: TInventoryCounts;
+  setInventoryCountsForEdit: (e: TInventoryCounts) => void;
+  deleteInventoryCounts: (arg0: TInventoryCounts) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
-  list: TTransferOrder[];
+  list: TInventoryCounts[];
   totalPages: number;
-  fetchTransferOrders: (page: number, search?: string, status?: string) => void;
+  fetchInventoryCounts: (
+    page: number,
+    search?: string,
+    status?: string
+  ) => void;
 }>()(
   immer((set) => ({
     page: 0,
@@ -24,16 +28,16 @@ export const useTransferOrderStore = create<{
     loading: false,
     loaded: false,
     list: [],
-    updateTransferOrder: (localTransferOrder: TTransferOrder) => {
+    updateInventoryCounts: (localInventoryCounts: TInventoryCounts) => {
       try {
         set((state) => {
           state.loading = true;
         });
         apiClient.put(
-          `/admin/inventory/purchase-order/${localTransferOrder._id}`,
-          localTransferOrder
+          `/admin/inventory/counts/${localInventoryCounts._id}`,
+          localInventoryCounts
         );
-        success(`${localTransferOrder.label} Updated successffuly`);
+        success(`${localInventoryCounts.label} Completed successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -42,18 +46,18 @@ export const useTransferOrderStore = create<{
         });
       }
     },
-    createTransferOrder: async (localTransferOrder: TTransferOrder) => {
+    createInventoryCounts: async (localInventoryCounts: TInventoryCounts) => {
       try {
-        if (localTransferOrder.inventoryItems.length == 0) {
+        if (localInventoryCounts.inventoryItems.length == 0) {
           return errorToast("No Stock Items found");
         }
         set((state) => {
           state.loading = true;
         });
-        localTransferOrder._id = null;
+        localInventoryCounts._id = null;
         await apiClient.post(
           `/admin/inventory/transfer-order`,
-          localTransferOrder
+          localInventoryCounts
         );
         success(`Stock Has been transferred succesfully`);
       } catch (e) {
@@ -64,12 +68,12 @@ export const useTransferOrderStore = create<{
         });
       }
     },
-    setTransferOrderForEdit: (e: TTransferOrder) => {
+    setInventoryCountsForEdit: (e: TInventoryCounts) => {
       set((state) => {
-        state.focusedTransferOrder = e;
+        state.focusedInventoryCounts = e;
       });
     },
-    deleteTransferOrder: async (arg0: TTransferOrder) => {
+    deleteInventoryCounts: async (arg0: TInventoryCounts) => {
       try {
         set((state) => {
           state.loading = true;
@@ -86,19 +90,19 @@ export const useTransferOrderStore = create<{
         throw e;
       }
     },
-    fetchTransferOrders: async (
+    fetchInventoryCounts: async (
       page: number,
       search?: string,
-      company?: string
+      status?: string
     ) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/admin/inventory/transfer-order?limit=20&search=${
+          `/admin/inventory/counts?limit=20&search=${
             search ?? ""
-          }&page=${page}&company=${company ?? ""}`
+          }&page=${page}&status=${status ?? ""}`
         );
         set((state) => {
           state.loading = false;

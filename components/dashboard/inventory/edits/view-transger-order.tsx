@@ -10,22 +10,22 @@ import {
   TableRow,
 } from "@heroui/react";
 import { FC, useEffect, useState } from "react";
-import { IoIosArrowBack, IoIosDoneAll } from "react-icons/io";
-import { MistDateUtils } from "@/utils/date-utils";
-import { toLocalCurrency } from "@/utils/currencies";
-import { useNavigation } from "@/stores/use-navigation";
-import { useSupplierStore } from "@/stores/suppliers-store";
-import { useInvSelect } from "@/stores/use-inv-select-store";
-import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
-import { InventoryConstants } from "@/utils/inventory";
-import { useTransferOrderStore } from "@/stores/transfer-order-store";
-import { TTransferOrder } from "@/types/transfer-order-t";
 import { MdNearbyError } from "react-icons/md";
+import { MistDateUtils } from "@/utils/date-utils";
+import { useNavigation } from "@/stores/use-navigation";
+import { TTransferOrder } from "@/types/transfer-order-t";
+import { useCompanyStore } from "@/stores/companies-store";
+import { useInvSelect } from "@/stores/use-inv-select-store";
+import { IoIosArrowBack, IoIosDoneAll } from "react-icons/io";
+import { useTransferOrderStore } from "@/stores/transfer-order-store";
+import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
+import { NormalLoader } from "@/components/loaders/normal-loader";
+import { MistDivider } from "@/components/layouts/mist-divider";
 
 export const ViewTransferOrder: FC = () => {
   const invStore = useInvSelect();
   const navigation = useNavigation();
-  const suppliers = useSupplierStore();
+  const company = useCompanyStore();
   const transferOrder = useTransferOrderStore();
   const [invSelectorOpen, setInvSelectorOpen] = useState(false);
   const [LocaltransferOrder, setLocaltransferOrder] =
@@ -34,6 +34,7 @@ export const ViewTransferOrder: FC = () => {
     transferOrderProp?: TTransferOrder | null
   ) => {
     if (transferOrderProp) {
+      company.fetchCompany(transferOrderProp.toCompany);
       setLocaltransferOrder({ ...transferOrderProp });
     } else {
       setLocaltransferOrder(null);
@@ -76,11 +77,19 @@ export const ViewTransferOrder: FC = () => {
               </span>
             </div>
           )}
+          {company.loading ? (
+            <NormalLoader />
+          ) : (
+            <div>
+              Transfer To :<span>{company.company?.name}</span>
+            </div>
+          )}
           {LocaltransferOrder.notes.trim().length > 0 && (
             <div>
               <span>{LocaltransferOrder.notes}</span>
             </div>
           )}
+          <MistDivider />
           Transfer Order Items
           <Table aria-label="Example static collection table">
             <TableHeader>

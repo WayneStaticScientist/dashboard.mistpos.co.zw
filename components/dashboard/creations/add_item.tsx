@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import { MaterialColors } from "@/utils/colors";
-import { IoIosArrowBack, IoMdAdd } from "react-icons/io";
+import { IoIosArrowBack, IoMdAdd, IoMdClose } from "react-icons/io";
 import { useNavigation } from "@/stores/use-navigation";
 import { FC, Fragment, useEffect, useState } from "react";
 import { useProductsStore } from "@/stores/product-stores";
@@ -308,7 +308,18 @@ export const ItemModelCreate: FC = () => {
                       }}
                     />
                   </TableCell>
-                  <TableCell>{""}</TableCell>
+                  <TableCell>
+                    <Button
+                      isIconOnly
+                      onPress={() => {
+                        invStore.setList(
+                          invStore.list.filter((i) => i.id !== item.id)
+                        );
+                      }}
+                    >
+                      <IoMdClose />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

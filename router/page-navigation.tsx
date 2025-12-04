@@ -28,16 +28,21 @@ import { EditsupplierNav } from "@/components/dashboard/inventory/edits/supplier
 import { AddSupplierNav } from "@/components/dashboard/inventory/creations/add-supplier";
 import { TransferOrdersNav } from "@/components/dashboard/inventory/transfer-orders-view";
 import { ViewTransferOrder } from "@/components/dashboard/inventory/edits/view-transger-order";
+import { AddTransferOrder } from "@/components/dashboard/inventory/creations/add-transfer-order";
+import { InventoryCountsNav } from "@/components/dashboard/inventory/inventory-counts-view";
+import { ViewInventoryCount } from "@/components/dashboard/inventory/edits/view-inventory-count";
+import { CountInventory } from "@/components/dashboard/inventory/edits/count-inventory";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   main: MainReport,
   su: SuppliersNav,
   shifts: ShiftsNav,
   receits: ReceitsNav,
+  ta: TransferOrdersNav,
   po: PurchaseOrdersNav,
   products: ProductsNav,
+  ic: InventoryCountsNav,
   modifiers: ModifiersNav,
-  ta: TransferOrdersNav,
   sa: StockAdjustmentsNav,
   discounts: DiscountsNav,
   categories: CategoriesNav,
@@ -47,6 +52,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editCategory: EditCategoryNav,
   createModifier: AddModifierNav,
   editSupplier: EditsupplierNav,
+  countInventory: CountInventory,
   createProduct: ItemModelCreate,
   editDiscount: EditDiscountsNav,
   createSupplier: AddSupplierNav,
@@ -56,7 +62,9 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   employeeSales: SalesByEmployeeReport,
   viewPurchaseOrder: ViewPurchaseOrder,
   viewTransferOrder: ViewTransferOrder,
+  createTransferOrder: AddTransferOrder,
   createPurchaseOrder: AddPurchaseOrder,
+  viewInventoryCount: ViewInventoryCount,
   viewStockAdjusment: ViewStockAdjustment,
   receivePurchaseOrder: ReceivePurchaseOrder,
   createStockAdjustment: AddStockAdjustment,

@@ -1,22 +1,24 @@
 import { create } from "zustand";
+import { TCompany } from "@/types/company-t";
 import apiClient from "@/services/api-client";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
-import { TTransferOrder } from "@/types/transfer-order-t";
 
-export const useTransferOrderStore = create<{
-  updateTransferOrder: (localTransferOrder: TTransferOrder) => void;
-  createTransferOrder: (localTransferOrder: TTransferOrder) => void;
-  focusedTransferOrder?: TTransferOrder;
-  setTransferOrderForEdit: (e: TTransferOrder) => void;
-  deleteTransferOrder: (arg0: TTransferOrder) => void;
+export const useCompanyStore = create<{
+  company?: TCompany;
+  fetchCompany: (id: string) => void;
+  updatecompany: (localcompany: TCompany) => void;
+  createcompany: (localcompany: TCompany) => void;
+  focusedCompany?: TCompany;
+  seTCompanyForEdit: (e: TCompany) => void;
+  deleteCompany: (arg0: TCompany) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
-  list: TTransferOrder[];
+  list: TCompany[];
   totalPages: number;
-  fetchTransferOrders: (page: number, search?: string, status?: string) => void;
+  fetchCompanies: (page: number, search?: string) => void;
 }>()(
   immer((set) => ({
     page: 0,
@@ -24,16 +26,30 @@ export const useTransferOrderStore = create<{
     loading: false,
     loaded: false,
     list: [],
-    updateTransferOrder: (localTransferOrder: TTransferOrder) => {
+    fetchCompany: async (id: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        apiClient.put(
-          `/admin/inventory/purchase-order/${localTransferOrder._id}`,
-          localTransferOrder
-        );
-        success(`${localTransferOrder.label} Updated successffuly`);
+        const response = await apiClient.get(`/company/${id}`);
+        set((state) => {
+          state.loading = false;
+          state.company = response.data.update;
+        });
+      } catch (e) {
+        set((state) => {
+          state.loading = false;
+        });
+        errorToast(decodeFromAxios(e).message);
+      }
+    },
+    updatecompany: (localcompany: TCompany) => {
+      try {
+        set((state) => {
+          state.loading = true;
+        });
+        apiClient.put(`/admin/company/${localcompany._id}`, localcompany);
+        success(`${localcompany.name} Updated successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -42,20 +58,14 @@ export const useTransferOrderStore = create<{
         });
       }
     },
-    createTransferOrder: async (localTransferOrder: TTransferOrder) => {
+    createcompany: async (localcompany: TCompany) => {
       try {
-        if (localTransferOrder.inventoryItems.length == 0) {
-          return errorToast("No Stock Items found");
-        }
         set((state) => {
           state.loading = true;
         });
-        localTransferOrder._id = null;
-        await apiClient.post(
-          `/admin/inventory/transfer-order`,
-          localTransferOrder
-        );
-        success(`Stock Has been transferred succesfully`);
+        localcompany._id = null;
+        await apiClient.post(`/admin/company`, localcompany);
+        success(`${localcompany.name} Created successffuly`);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -64,18 +74,18 @@ export const useTransferOrderStore = create<{
         });
       }
     },
-    setTransferOrderForEdit: (e: TTransferOrder) => {
+    seTCompanyForEdit: (e: TCompany) => {
       set((state) => {
-        state.focusedTransferOrder = e;
+        state.focusedCompany = e;
       });
     },
-    deleteTransferOrder: async (arg0: TTransferOrder) => {
+    deleteCompany: async (arg0: TCompany) => {
       try {
         set((state) => {
           state.loading = true;
         });
-        await apiClient.delete(`/admin/category/${arg0._id}`);
-        success(`${arg0.label} Deleted successffuly`);
+        await apiClient.delete(`/admin/company/${arg0._id}`);
+        success(`${arg0.name} Deleted successffuly`);
         set((state) => {
           state.loading = false;
         });
@@ -86,19 +96,13 @@ export const useTransferOrderStore = create<{
         throw e;
       }
     },
-    fetchTransferOrders: async (
-      page: number,
-      search?: string,
-      company?: string
-    ) => {
+    fetchCompanies: async (page: number, search?: string) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/admin/inventory/transfer-order?limit=20&search=${
-            search ?? ""
-          }&page=${page}&company=${company ?? ""}`
+          `/admin/companies?limit=100&search=${search ?? ""}&page=${page}`
         );
         set((state) => {
           state.loading = false;

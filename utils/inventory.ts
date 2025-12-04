@@ -31,4 +31,8 @@ export class InventoryConstants {
     loss: { label: "Loss", value: "loss" },
     damaged: { label: "Damaged", value: "damaged" },
   };
+  static inventoryCountStatusObject: any = {
+    pending: { label: "Pending", value: "pending" },
+    completed: { label: "Counted", value: "completed" },
+  };
 }

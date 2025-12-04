@@ -10,6 +10,9 @@ export interface InvItem {
   counted: number;
   updated: boolean;
   inStock: number;
+  count: number;
+  difference: number;
+  costDifference: number;
 }
 
 export interface TPurchaseOrder {

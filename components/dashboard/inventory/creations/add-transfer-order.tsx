@@ -1,8 +1,6 @@
 "use client";
-import { TProduct } from "@/types/product-t";
 import {
   Button,
-  Checkbox,
   Input,
   Navbar,
   NavbarBrand,
@@ -16,50 +14,50 @@ import {
   TableRow,
 } from "@heroui/react";
 import { FC, useEffect, useState } from "react";
-import useSessionState from "@/stores/session-store";
 import { toLocalCurrency } from "@/utils/currencies";
 import { useNavigation } from "@/stores/use-navigation";
 import { IoIosArrowBack, IoMdAdd, IoMdClose } from "react-icons/io";
-import { TPurchaseOrder } from "@/types/purchase-order-t";
-import { useSupplierStore } from "@/stores/suppliers-store";
 import { useInvSelect } from "@/stores/use-inv-select-store";
-import { MistDivider } from "@/components/layouts/mist-divider";
-import { NormalLoader } from "@/components/loaders/normal-loader";
-import { usePurchaseOrderStore } from "@/stores/purchase-order-store";
 import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
+import { useCompanyStore } from "@/stores/companies-store";
+import { NormalLoader } from "@/components/loaders/normal-loader";
+import { TTransferOrder } from "@/types/transfer-order-t";
+import { useTransferOrderStore } from "@/stores/transfer-order-store";
+import useSessionState from "@/stores/session-store";
+import { errorToast } from "@/utils/toaster";
 
-export const AddPurchaseOrder: FC = () => {
+export const AddTransferOrder: FC = () => {
   const invStore = useInvSelect();
   const session = useSessionState();
   const navigation = useNavigation();
-  const suppliers = useSupplierStore();
-  const purchaseOrders = usePurchaseOrderStore();
+  const companies = useCompanyStore();
+  const transferOrder = useTransferOrderStore();
   const [invSelectorOpen, setInvSelectorOpen] = useState(false);
-  const [localPurchaseOrder, setLocalPurchaseOrder] = useState<TPurchaseOrder>({
+  const [LocaltransferOrder, setLocaltransferOrder] = useState<TTransferOrder>({
     _id: "",
     notes: "",
-    status: "",
     label: "",
     company: "",
     senderId: "",
-    sellerId: "",
-    expectedDate: "",
+    toCompany: "",
     inventoryItems: [],
   });
+
   useEffect(() => {
     invStore.setList([]);
-    suppliers.fetchSuppliers(1);
+    companies.fetchCompanies(1);
   }, []);
+
   return (
     <div className="w-full flex items-center justify-center">
       <div className=" max-w-2xl w-full gap-4 flex flex-col">
         <Navbar>
-          <NavbarBrand
-            className=" cursor-pointer select-none"
-            onClick={() => navigation.back()}
-          >
-            <IoIosArrowBack />
-            <p className="font-bold text-inherit ml-3">Create Purchase Order</p>
+          <NavbarBrand>
+            <IoIosArrowBack
+              className=" cursor-pointer select-none w-auto"
+              onClick={() => navigation.back()}
+            />
+            <p className="font-bold text-inherit ml-3">New TransferOrder</p>
           </NavbarBrand>
         </Navbar>
         <InvSelectionModal
@@ -68,53 +66,41 @@ export const AddPurchaseOrder: FC = () => {
             setInvSelectorOpen(false);
           }}
         />
-        <div className="font-bold text-xl"> New Purchase Order</div>
-        {suppliers.loading && <NormalLoader />}
-        {!suppliers.loading && (
+        {companies.loading ? (
+          <NormalLoader />
+        ) : (
           <Select
             className=" w-full"
-            label="Supplier Name"
-            value={localPurchaseOrder.sellerId}
+            label="Destination Store"
+            value={LocaltransferOrder.toCompany}
             onChange={(e) => {
-              setLocalPurchaseOrder({
-                ...localPurchaseOrder!,
-                sellerId: e.target.value,
+              setLocaltransferOrder({
+                ...LocaltransferOrder!,
+                toCompany: e.target.value,
               });
             }}
           >
-            {suppliers.list.map((supplier) => (
-              <SelectItem key={supplier._id}>{supplier.name}</SelectItem>
+            {companies.list.map((company) => (
+              <SelectItem key={company._id}>{company.name}</SelectItem>
             ))}
           </Select>
         )}
         <Input
-          label="Expected On"
-          value={localPurchaseOrder.expectedDate}
-          type="date"
-          onChange={(e) =>
-            setLocalPurchaseOrder({
-              ...localPurchaseOrder!,
-              expectedDate: e.target.value,
-            })
-          }
-        />
-        <Input
           label="Notes"
-          value={localPurchaseOrder.notes}
+          value={LocaltransferOrder.notes}
           type="text"
           onChange={(e) =>
-            setLocalPurchaseOrder({
-              ...localPurchaseOrder!,
+            setLocaltransferOrder({
+              ...LocaltransferOrder!,
               notes: e.target.value,
             })
           }
         />
-        <MistDivider />
-        Purchase Order Items
+        transferOrder Items
         <Table aria-label="Example static collection table">
           <TableHeader>
             <TableColumn>Name</TableColumn>
-            <TableColumn>Cost</TableColumn>
+            <TableColumn>In Stock</TableColumn>
             <TableColumn>Quantity</TableColumn>
             <TableColumn>
               <Button
@@ -131,7 +117,8 @@ export const AddPurchaseOrder: FC = () => {
             {invStore.list.map((item, key) => (
               <TableRow key={key}>
                 <TableCell>{item.name}</TableCell>
-                <TableCell>{toLocalCurrency(item.cost)}</TableCell>
+                <TableCell>{item.inStock}</TableCell>
+
                 <TableCell>
                   <Input
                     value={item.quantity.toString()}
@@ -172,13 +159,21 @@ export const AddPurchaseOrder: FC = () => {
         </Table>
         <Button
           color="primary"
-          isLoading={purchaseOrders.loading}
+          isLoading={transferOrder.loading}
           onPress={() => {
-            localPurchaseOrder.inventoryItems = invStore.list;
-            purchaseOrders.createPurchaseOrder(localPurchaseOrder);
+            if (session.company.trim() == LocaltransferOrder.toCompany.trim()) {
+              return errorToast(
+                "destination store cant be same as your current store"
+              );
+            }
+            if (LocaltransferOrder.toCompany.trim() == "") {
+              return errorToast("destination store cant be empty");
+            }
+            LocaltransferOrder.inventoryItems = invStore.list;
+            transferOrder.createTransferOrder(LocaltransferOrder);
           }}
         >
-          Create Item
+          Initiate Transfer
         </Button>
       </div>
     </div>
