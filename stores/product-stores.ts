@@ -11,7 +11,17 @@ export const useProductsStore = create<{
   loading: boolean;
   loaded: boolean;
   totalPages: number;
-  fetchProducts: (page: number, search?: string) => void;
+  fetchProducts: (
+    page: number,
+    search?: string,
+    {
+      limit,
+      composite,
+    }?: {
+      limit?: number;
+      composite?: boolean;
+    }
+  ) => void;
   fetchProductsAsync: (
     page: number,
     limit: number,
@@ -23,7 +33,7 @@ export const useProductsStore = create<{
   immer((set) => ({
     page: 0,
     totalPages: 0,
-    loading: true,
+    loading: false,
     loaded: false,
     list: [],
     fetchProductsAsync: async (
@@ -57,13 +67,22 @@ export const useProductsStore = create<{
         state.focusedProduct = product;
       });
     },
-    fetchProducts: async (page: number, search?: string) => {
+    fetchProducts: async (
+      page: number,
+      search?: string,
+      { limit, composite } = {
+        limit: undefined,
+        composite: undefined,
+      }
+    ) => {
       try {
         set((state) => {
           state.loading = true;
         });
         const response = await apiClient.get(
-          `/cashier/products?page=${page}&search=${search ?? ""}&limit=10`
+          `/cashier/products?page=${page}&search=${search ?? ""}&limit=${
+            limit ?? 10
+          }&composite=${composite ? "true" : "false"}`
         );
         set((state) => {
           state.loading = false;
