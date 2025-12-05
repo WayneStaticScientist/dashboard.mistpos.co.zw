@@ -50,13 +50,19 @@ import { AddStoreNav } from "@/components/dashboard/creations/add_store";
 import { RatesView } from "@/components/dashboard/rates-view";
 import { EditCurrencyNav } from "@/components/dashboard/edits/currence-edit";
 import { AddCurrencyNav } from "@/components/dashboard/creations/add_currency";
+import { TaxesNav } from "@/components/dashboard/taxes-view";
+import { EditTax } from "@/components/dashboard/edits/edit-tax";
+import { AddTax } from "@/components/dashboard/creations/add_tax";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
+  taxs: TaxesNav,
   rates: RatesView,
   main: MainReport,
   su: SuppliersNav,
   shifts: ShiftsNav,
   stores: StoresNav,
+  editTax: EditTax,
+  createTax: AddTax,
   receits: ReceitsNav,
   ta: TransferOrdersNav,
   po: PurchaseOrdersNav,

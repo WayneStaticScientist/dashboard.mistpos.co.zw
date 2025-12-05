@@ -11,6 +11,7 @@ export const useProductsStore = create<{
   loading: boolean;
   loaded: boolean;
   totalPages: number;
+
   fetchProducts: (
     page: number,
     search?: string,
@@ -22,6 +23,7 @@ export const useProductsStore = create<{
       composite?: boolean;
     }
   ) => void;
+  fetchListOfProductsIdsAsAsync: (ids: string[]) => Promise<TProduct[]>;
   fetchProductsAsync: (
     page: number,
     limit: number,
@@ -49,6 +51,31 @@ export const useProductsStore = create<{
         const response = await apiClient.get(
           `/cashier/products?page=${page}&search=${search ?? ""}&limit=${limit}`
         );
+        set((state) => {
+          state.loading = false;
+          state.loaded = true;
+        });
+        return response.data.list;
+      } catch (e) {
+        set((state) => {
+          state.loading = false;
+          state.loaded = false;
+        });
+      }
+      return [];
+    },
+    fetchListOfProductsIdsAsAsync: async (
+      ids: string[]
+    ): Promise<TProduct[]> => {
+      try {
+        set((state) => {
+          state.loading = true;
+          state.loaded = false;
+        });
+        const response = await apiClient.post(`/admin/products/range`, {
+          ids,
+          filter: "any",
+        });
         set((state) => {
           state.loading = false;
           state.loaded = true;
