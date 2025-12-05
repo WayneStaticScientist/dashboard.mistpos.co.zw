@@ -1,14 +1,13 @@
 import { IconType } from "react-icons";
-import { AiOutlineProduct } from "react-icons/ai";
-import { BiCategory, BiExport, BiPurchaseTag, BiShow } from "react-icons/bi";
-import { BsCart } from "react-icons/bs";
-import { FaAmazonPay, FaChartBar, FaRegUser } from "react-icons/fa";
-import { FiInfo, FiShare } from "react-icons/fi";
-import { GrUserWorker } from "react-icons/gr";
-import { HiOutlineVariable } from "react-icons/hi";
 import { ImHistory } from "react-icons/im";
-import { IoReceiptOutline } from "react-icons/io5";
 import { LuFactory } from "react-icons/lu";
+import { GrUserWorker } from "react-icons/gr";
+import { FiInfo, FiShare } from "react-icons/fi";
+import { IoReceiptOutline } from "react-icons/io5";
+import { AiOutlineProduct } from "react-icons/ai";
+import { HiOutlineVariable } from "react-icons/hi";
+import { BiCategory, BiExport, BiPurchaseTag } from "react-icons/bi";
+import { FaAmazonPay, FaChartBar, FaRegUser } from "react-icons/fa";
 import {
   MdAvTimer,
   MdOutlineCountertops,

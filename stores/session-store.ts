@@ -12,15 +12,16 @@ import axios from "axios";
 const useSessionState = create<
   TUser & {
     switchId: string;
+    loading: boolean;
     switching: boolean;
     sesionLoading: boolean;
-    loading: boolean;
+    getSessionState: () => void;
+    switchToCurrence: (currency: string) => void;
     switchToACompany: (companyId: string) => void;
     login: (email: string, password: string) => void;
-    getSessionState: () => void;
   }
 >()(
-  immer((set) => ({
+  immer((set, get) => ({
     till: 0,
     role: "",
     phone: "",
@@ -76,8 +77,39 @@ const useSessionState = create<
         throw error;
       }
     },
+    switchToCurrence: async (currency: string) => {
+      try {
+        if (get().switching)
+          return errorToast("switching is in process please wait");
+        if (currency.trim() == "") {
+          return errorToast("invalid currency");
+        }
+        set((state) => {
+          state.switchId = currency;
+          state.switching = true;
+        });
+        const response = await apiClient.put(`/user/curreny/${currency}`);
+        const user = response.data.update;
+        set(user);
+        set((state) => {
+          state.switchId = "";
+          state.switching = false;
+        });
+        localStorage.setItem("user", JSON.stringify(user));
+        success("Succefully switched currency to " + currency);
+      } catch (error) {
+        errorToast(decodeFromAxios(error).message);
+        set((state) => {
+          state.switchId = "";
+          state.loading = false;
+          state.switching = false;
+        });
+      }
+    },
     switchToACompany: async (companyId: string) => {
       try {
+        if (get().switching)
+          return errorToast("switching is in process please wait");
         if (companyId.trim() == "") {
           return errorToast("invalid company id");
         }
@@ -95,10 +127,12 @@ const useSessionState = create<
         localStorage.setItem("user", JSON.stringify(user));
         success("Succefully switched stores");
       } catch (error) {
+        errorToast(decodeFromAxios(error).message);
         set((state) => {
+          state.switchId = "";
           state.loading = false;
+          state.switching = false;
         });
-        throw error;
       }
     },
 
