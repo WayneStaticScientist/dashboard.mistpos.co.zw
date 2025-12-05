@@ -53,6 +53,7 @@ import { AddCurrencyNav } from "@/components/dashboard/creations/add_currency";
 import { TaxesNav } from "@/components/dashboard/taxes-view";
 import { EditTax } from "@/components/dashboard/edits/edit-tax";
 import { AddTax } from "@/components/dashboard/creations/add_tax";
+import { ExportOrImportProduct } from "@/components/dashboard/export-import";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   taxs: TaxesNav,
@@ -105,6 +106,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   viewTransferOrder: ViewTransferOrder,
   createTransferOrder: AddTransferOrder,
   createPurchaseOrder: AddPurchaseOrder,
+  "eoi-products": ExportOrImportProduct,
   viewInventoryCount: ViewInventoryCount,
   viewStockAdjusment: ViewStockAdjustment,
   createInventoryCount: AddInventoryCount,
