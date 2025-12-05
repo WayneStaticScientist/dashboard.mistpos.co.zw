@@ -33,9 +33,9 @@ export default function SideBar({
         </Button>
       </div>
       <nav className="p-4 text-foreground! overflow-y-auto h-full">
-        {NavBarMenu.map((group) => {
+        {NavBarMenu.map((group, key) => {
           return (
-            <div>
+            <div key={key}>
               <h2 className="px-3 py-2 text-xs font-semibold uppercase text-gray-400">
                 {group.group}
               </h2>

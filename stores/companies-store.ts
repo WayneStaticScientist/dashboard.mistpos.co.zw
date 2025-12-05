@@ -4,15 +4,22 @@ import apiClient from "@/services/api-client";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
-
+export type CurrencyPair = {
+  key: string;
+  value: number;
+};
 export const useCompanyStore = create<{
   company?: TCompany;
   fetchCompany: (id: string) => void;
+  selectedCurrencyPair?: CurrencyPair;
+  setSelectedCurrencyPair: (l: { key: string; value: number }) => void;
   updatecompany: (localcompany: TCompany) => void;
+  updateCurrency: (currency: CurrencyPair) => void;
   createcompany: (localcompany: TCompany) => void;
   focusedCompany?: TCompany;
   seTCompanyForEdit: (e: TCompany) => void;
   deleteCompany: (arg0: TCompany) => void;
+  deleteCurrency: (arg0: CurrencyPair) => void;
   page: number;
   loading: boolean;
   loaded: boolean;
@@ -20,24 +27,32 @@ export const useCompanyStore = create<{
   totalPages: number;
   fetchCompanies: (page: number, search?: string) => void;
 }>()(
-  immer((set) => ({
+  immer((set, get) => ({
     page: 0,
     totalPages: 0,
     loading: false,
     loaded: false,
     list: [],
+    setSelectedCurrencyPair: (data: CurrencyPair) => {
+      set((state) => {
+        state.selectedCurrencyPair = data;
+      });
+    },
     fetchCompany: async (id: string) => {
       try {
         set((state) => {
           state.loading = true;
+          state.loaded = false;
         });
         const response = await apiClient.get(`/company/${id}`);
         set((state) => {
+          state.loaded = true;
           state.loading = false;
           state.company = response.data.update;
         });
       } catch (e) {
         set((state) => {
+          state.loaded = false;
           state.loading = false;
         });
         errorToast(decodeFromAxios(e).message);
@@ -51,6 +66,32 @@ export const useCompanyStore = create<{
         await apiClient.put(`/admin/company/${localcompany._id}`, localcompany);
         success(`${localcompany.name} Updated successffuly`);
       } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.loading = false;
+        });
+      }
+    },
+    updateCurrency: async (data: CurrencyPair) => {
+      try {
+        if (!get().company || !get().company?.exchangeRates) {
+          return errorToast("something went wrong , company not found");
+        }
+        const newRates = {
+          ...get().company!.exchangeRates,
+          rates: {
+            ...(get().company!.exchangeRates?.rates || {}), // Copy existing rates
+            [data.key]: data.value, // Apply the new rate
+          },
+        };
+        set((state) => {
+          state.loading = true;
+        });
+        await apiClient.put(`/admin/company/currency`, newRates);
+        success(`${data.key} Updated successffuly`);
+      } catch (e) {
+        console.log(e);
         errorToast(decodeFromAxios(e).message);
       } finally {
         set((state) => {
@@ -93,6 +134,44 @@ export const useCompanyStore = create<{
         set((state) => {
           state.loading = false;
         });
+        throw e;
+      }
+    },
+    deleteCurrency: async (arg0: CurrencyPair) => {
+      try {
+        const company = get().company;
+
+        if (
+          !company ||
+          !company.exchangeRates ||
+          !company.exchangeRates.rates
+        ) {
+          return errorToast("something went wrong, company or rates not found");
+        }
+
+        set((state) => {
+          state.loading = true;
+        });
+        const currentRates = company.exchangeRates.rates;
+        const { [arg0.key]: removedValue, ...newRatesObject } = currentRates;
+        const newExchangeRates = {
+          ...company.exchangeRates, // Copy name and other properties
+          rates: newRatesObject, // Use the new object without the removed key
+        };
+        set((state) => {
+          state.loading = true;
+        });
+        await apiClient.put(`/admin/company/currency`, newExchangeRates);
+        success(`${arg0.key} Delete successffuly`);
+        set((state) => {
+          state.loading = false;
+        });
+      } catch (e) {
+        set((state) => {
+          state.loading = false;
+        });
+        console.log(e);
+        errorToast(decodeFromAxios(e).message);
         throw e;
       }
     },
