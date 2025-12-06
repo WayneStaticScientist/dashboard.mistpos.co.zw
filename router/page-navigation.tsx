@@ -56,6 +56,9 @@ import { AddTax } from "@/components/dashboard/creations/add_tax";
 import { ExportOrImportProduct } from "@/components/dashboard/export-import";
 import { PaymentGateWays } from "@/components/dashboard/gateways/payment-getways";
 import { EditPaynowGateWay } from "@/components/dashboard/gateways/paynow/paynow-edit";
+import { SubscriptionView } from "@/components/dashboard/subscriptions-view";
+import { HelpAndSupport } from "@/components/dashboard/help-view";
+import LogoutView from "@/components/dashboard/logout-view";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   taxs: TaxesNav,
@@ -67,7 +70,9 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editTax: EditTax,
   createTax: AddTax,
   receits: ReceitsNav,
+  logout: LogoutView,
   ta: TransferOrdersNav,
+  help: HelpAndSupport,
   po: PurchaseOrdersNav,
   products: ProductsNav,
   ic: InventoryCountsNav,
@@ -103,6 +108,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editProduction: ViewProductions,
   createDiscount: AddDiscountsNav,
   createProduction: AddProductions,
+  subscriptions: SubscriptionView,
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,

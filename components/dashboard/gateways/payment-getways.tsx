@@ -16,18 +16,17 @@ import { LuDelete } from "react-icons/lu";
 import { errorToast } from "@/utils/toaster";
 import { decodeFromAxios } from "@/utils/errors";
 import useSessionState from "@/stores/session-store";
+import { useNavigation } from "@/stores/use-navigation";
 import { useCompanyStore } from "@/stores/companies-store";
 import NormalError from "@/components/errors/normal-errror";
 import { NormalLoader } from "@/components/loaders/normal-loader";
 import { UniversalDeleteModel } from "@/components/layouts/universal-delete-modal";
-import { useNavigation } from "@/stores/use-navigation";
 export const pad = (num: number) => (num < 10 ? "0" + num : num);
 export const PaymentGateWays = () => {
   const company = useCompanyStore();
   const session = useSessionState();
   const navigation = useNavigation();
   const [selectedEmployee, setSelectedEmployee] = useState<TUser | null>(null);
-  const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
     company.fetchCompany(session.company);
   }, [session.company]);
@@ -35,7 +34,7 @@ export const PaymentGateWays = () => {
     return <NormalLoader />;
   }
   if (!company.loaded) {
-    return <NormalError message="Company Data" />;
+    return <NormalError message="Failed to Loaded Getway" />;
   }
   return (
     <Fragment>

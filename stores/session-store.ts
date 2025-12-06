@@ -1,27 +1,38 @@
-import { create } from "zustand";
-import { TUser } from "@/types/user-t";
 import apiClient, {
   getNewTokensForTransport,
   getUserDeviceId,
 } from "@/services/api-client";
+import axios from "axios";
+import { create } from "zustand";
+import { TUser } from "@/types/user-t";
 import { decodeFromAxios } from "@/utils/errors";
 import { immer } from "zustand/middleware/immer";
 import { errorToast, success } from "@/utils/toaster";
-import axios from "axios";
 
 const useSessionState = create<
   TUser & {
+    verificationSent: boolean;
+    verificationSending: boolean;
     switchId: string;
     loading: boolean;
     switching: boolean;
     sesionLoading: boolean;
-    getSessionState: () => void;
+    logout: () => void;
+    verifyUserOtp: (data: {
+      otp: string;
+      email: string;
+      newPassword: string;
+    }) => void;
+    getSessionState: () => Promise<void>;
+    sendVerificationEmail: (email: string) => void;
     switchToCurrence: (currency: string) => void;
     switchToACompany: (companyId: string) => void;
     login: (email: string, password: string) => void;
   }
 >()(
   immer((set, get) => ({
+    verificationSent: false,
+    verificationSending: false,
     till: 0,
     role: "",
     phone: "",
@@ -46,6 +57,12 @@ const useSessionState = create<
     sesionLoading: true,
     paynowActivated: false,
     _id: "",
+    logout: () => {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    },
     login: async (email: string, password: string) => {
       try {
         set((state) => {
@@ -161,6 +178,51 @@ const useSessionState = create<
         //   window.location.href = "/login";
         // }
         return;
+      }
+    },
+    sendVerificationEmail: async (email: string) => {
+      try {
+        set((state) => {
+          state.verificationSent = false;
+          state.verificationSending = true;
+        });
+        await apiClient.post("/user/email/verify", { email });
+        set((state) => {
+          state.verificationSent = true;
+          state.verificationSending = false;
+        });
+        success("Verification email sent successfully");
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+      } finally {
+        set((state) => {
+          state.verificationSending = false;
+        });
+      }
+    },
+    verifyUserOtp: async (data: {
+      otp: string;
+      email: string;
+      newPassword: string;
+    }) => {
+      try {
+        if (data.otp.trim().length < 6) {
+          return errorToast("otp is 6 characters long");
+        }
+        set((state) => {
+          state.verificationSending = true;
+        });
+        await apiClient.post("/user/email/verify/otp", data);
+        set((state) => {
+          state.verificationSending = false;
+        });
+        success("Your password has been reset successfully");
+        window.location.href = "/login";
+      } catch (e) {
+        errorToast(decodeFromAxios(e).message);
+        set((state) => {
+          state.verificationSending = false;
+        });
       }
     },
   }))

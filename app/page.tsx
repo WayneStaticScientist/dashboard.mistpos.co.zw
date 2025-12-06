@@ -3,15 +3,22 @@ import { useEffect, useState } from "react";
 import Header from "@/components/layouts/header";
 import SideBar from "@/components/layouts/side-bar";
 import useSessionState from "@/stores/session-store";
-import { MistNavigation } from "@/router/page-navigation";
-import { CenterLoader } from "@/components/loaders/center-loader";
 import { useNavigation } from "@/stores/use-navigation";
+import { MistNavigation } from "@/router/page-navigation";
+import { useCompanyStore } from "@/stores/companies-store";
+import { CenterLoader } from "@/components/loaders/center-loader";
 
 export default function Dashboard() {
   const session = useSessionState();
+  const companyStore = useCompanyStore();
+  async function initUser() {}
   useEffect(() => {
     session.getSessionState();
+    initUser();
   }, []);
+  useEffect(() => {
+    companyStore.fetchUserCompany();
+  }, [session.company]);
   const navigation = useNavigation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (

@@ -4,6 +4,8 @@ import { NavBarItem, NavBarMenu } from "@/menu/nav-bar-menu";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
 import { CgClose } from "react-icons/cg";
+import { useCompanyStore } from "@/stores/companies-store";
+import { errorToast } from "@/utils/toaster";
 
 export default function SideBar({
   sidebarOpen,
@@ -16,6 +18,7 @@ export default function SideBar({
   setCurrentPage: (page: string) => void;
   setSibeBarOpen: (state: boolean) => void;
 }) {
+  const company = useCompanyStore();
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-20 w-72 transform ${
@@ -32,6 +35,20 @@ export default function SideBar({
           <CgClose />
         </Button>
       </div>
+      {company.userCompany && !company.userCompany.verified && (
+        <Button
+          className="ml-3 mt-3"
+          variant="bordered"
+          color="warning"
+          onPress={() => {
+            if (window) {
+              window.location.href = "/verify";
+            }
+          }}
+        >
+          Verify Account
+        </Button>
+      )}
       <nav className="p-4 text-foreground! overflow-y-auto h-full">
         {NavBarMenu.map((group, key) => {
           return (
@@ -81,7 +98,16 @@ function parseChild(
 
 const NavItem: React.FC<
   NavBarItem & { currentPage: string; setCurrentPage: (page: string) => void }
-> = ({ name, Icon, children, currentPage, setCurrentPage, page }) => {
+> = ({
+  name,
+  Icon,
+  children,
+  currentPage,
+  setCurrentPage,
+  page,
+  subscriptionLevels,
+}) => {
+  const company = useCompanyStore();
   const [isOpen, setIsOpen] = useState(false);
   const isCollapsible = !!children;
 
@@ -120,7 +146,7 @@ const NavItem: React.FC<
 
         {/* Dropdown Content (Collapsible list of children) */}
         <div
-          className={`overflow-hidden transition-all duration-300 ease-out ${collapseClasses}`}
+          className={`overflow-hidden transition-all duration-300 ease-out ${collapseClasses}  `}
         >
           <ul className="ml-4 pl-1 space-y-1">
             {parseChildrens(children, currentPage, setCurrentPage)}
@@ -134,14 +160,41 @@ const NavItem: React.FC<
   return (
     <a
       onClick={() => {
+        if (subscriptionLevels != null) {
+          const subscriptionType =
+            company.userCompany?.subscriptionType?.type ?? "free";
+          if (!subscriptionLevels.includes(subscriptionType)) {
+            errorToast(
+              `Your current subscription ${
+                company.userCompany?.subscriptionType?.type.toUpperCase() ??
+                "FREE"
+              } Plan does not allow you to view ${name.toUpperCase()} current supported subscriptions for this are 
+               ${subscriptionLevels
+                 .map((e) => e.toUpperCase())
+                 .join(", ")
+                 .toUpperCase()}`
+            );
+            return;
+          }
+        }
         setCurrentPage(page);
       }}
       className={`flex items-center w-full p-2 text-sm font-medium text-foreground cursor-pointer
          hover:text-primary rounded-lg transition duration-150 ${
            currentPage == page ? "bg-[#e6e6e640]" : ""
-         }`}
+         }
+          ${
+            subscriptionLevels != null
+              ? subscriptionLevels.find(
+                  (e) =>
+                    e == (company.userCompany?.subscriptionType?.type ?? "free")
+                )
+                ? "text-foreground"
+                : "text-danger!"
+              : "text-foreground!"
+          } `}
     >
-      <Icon className="w-5 h-5 mr-3 text-foreground" />
+      <Icon className="w-5 h-5 mr-3 " />
       {name}
     </a>
   );
