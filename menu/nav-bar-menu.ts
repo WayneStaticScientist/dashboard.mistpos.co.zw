@@ -14,6 +14,7 @@ import {
   MdOutlineDiscount,
   MdOutlineHelpOutline,
   MdOutlineInventory2,
+  MdOutlinePayment,
   MdOutlineSummarize,
 } from "react-icons/md";
 import { RiStockLine, RiStore2Line } from "react-icons/ri";
@@ -169,6 +170,11 @@ export const NavBarMenu: {
         name: "Customers",
         page: "customers",
         Icon: FaRegUser,
+      },
+      {
+        name: "Payment Gateways",
+        page: "payments",
+        Icon: MdOutlinePayment,
       },
       {
         name: "Stores",

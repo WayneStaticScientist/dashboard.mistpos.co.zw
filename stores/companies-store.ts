@@ -1,14 +1,17 @@
 import { create } from "zustand";
-import { TCompany } from "@/types/company-t";
+import { Paynow, TCompany } from "@/types/company-t";
 import apiClient from "@/services/api-client";
 import { immer } from "zustand/middleware/immer";
 import { decodeFromAxios } from "@/utils/errors";
 import { errorToast, success } from "@/utils/toaster";
+import { TUser } from "@/types/user-t";
+import toast from "react-hot-toast";
 export type CurrencyPair = {
   key: string;
   value: number;
 };
 export const useCompanyStore = create<{
+  disableGateway: (arg0: TUser) => void;
   company?: TCompany;
   fetchCompany: (id: string) => void;
   selectedCurrencyPair?: CurrencyPair;
@@ -25,6 +28,8 @@ export const useCompanyStore = create<{
   loaded: boolean;
   list: TCompany[];
   totalPages: number;
+  registeringPaynow: boolean;
+  registerPaynow: (data: Paynow) => void;
   fetchCompanies: (page: number, search?: string) => void;
 }>()(
   immer((set, get) => ({
@@ -33,6 +38,31 @@ export const useCompanyStore = create<{
     loading: false,
     loaded: false,
     list: [],
+    registeringPaynow: false,
+    registerPaynow: async (data: Paynow) => {
+      if (
+        data.integrationKey.trim().length < 3 ||
+        data.integrationId.trim().length < 3
+      ) {
+        return errorToast("Keys or Ids should be empty");
+      }
+      try {
+        set((state) => {
+          state.registeringPaynow = true;
+        });
+        await apiClient.post(`/admin/paynow/keys`, data);
+        set((state) => {
+          state.registeringPaynow = false;
+        });
+        success("paynow registered successfully");
+      } catch (e) {
+        set((state) => {
+          state.registeringPaynow = false;
+        });
+        errorToast(decodeFromAxios(e).message);
+      }
+    },
+    disableGateway: (arg0: TUser) => {},
     setSelectedCurrencyPair: (data: CurrencyPair) => {
       set((state) => {
         state.selectedCurrencyPair = data;
