@@ -53,6 +53,12 @@ import { AddCurrencyNav } from "@/components/dashboard/creations/add_currency";
 import { TaxesNav } from "@/components/dashboard/taxes-view";
 import { EditTax } from "@/components/dashboard/edits/edit-tax";
 import { AddTax } from "@/components/dashboard/creations/add_tax";
+import { ExportOrImportProduct } from "@/components/dashboard/export-import";
+import { PaymentGateWays } from "@/components/dashboard/gateways/payment-getways";
+import { EditPaynowGateWay } from "@/components/dashboard/gateways/paynow/paynow-edit";
+import { SubscriptionView } from "@/components/dashboard/subscriptions-view";
+import { HelpAndSupport } from "@/components/dashboard/help-view";
+import LogoutView from "@/components/dashboard/logout-view";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   taxs: TaxesNav,
@@ -64,7 +70,9 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editTax: EditTax,
   createTax: AddTax,
   receits: ReceitsNav,
+  logout: LogoutView,
   ta: TransferOrdersNav,
+  help: HelpAndSupport,
   po: PurchaseOrdersNav,
   products: ProductsNav,
   ic: InventoryCountsNav,
@@ -78,11 +86,13 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   sa: StockAdjustmentsNav,
   iv: InventoryEvaluation,
   discounts: DiscountsNav,
+  payments: PaymentGateWays,
   categories: CategoriesNav,
   editProduct: ItemModelEdit,
   productions: ProductionsNav,
   dailySales: DailySalesReport,
   addCurrency: AddCurrencyNav,
+  editPaynow: EditPaynowGateWay,
   editCustomer: EditCustomerNav,
   createEmployee: AddEmployeeNav,
   editModifier: EditModifierNav,
@@ -98,6 +108,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   editProduction: ViewProductions,
   createDiscount: AddDiscountsNav,
   createProduction: AddProductions,
+  subscriptions: SubscriptionView,
   createCategory: CreateCategoryNav,
   paymentSales: SalesByPaymentReport,
   employeeSales: SalesByEmployeeReport,
@@ -105,6 +116,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   viewTransferOrder: ViewTransferOrder,
   createTransferOrder: AddTransferOrder,
   createPurchaseOrder: AddPurchaseOrder,
+  "eoi-products": ExportOrImportProduct,
   viewInventoryCount: ViewInventoryCount,
   viewStockAdjusment: ViewStockAdjustment,
   createInventoryCount: AddInventoryCount,

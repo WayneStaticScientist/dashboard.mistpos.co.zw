@@ -16,7 +16,11 @@ export const useCategoriesStore = create<{
   loaded: boolean;
   list: TCategory[];
   totalPages: number;
-  fetchCategories: (page: number, search?: string) => void;
+  fetchCategories: (
+    page: number,
+    search?: string,
+    data?: { limit?: number }
+  ) => void;
 }>()(
   immer((set) => ({
     page: 0,

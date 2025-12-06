@@ -6,7 +6,7 @@ export interface Paynow {
 }
 export type SubscriptionType = {
   type: string;
-  validUntil: Date | null;
+  validUntil: string | null;
   onlineNotified: boolean;
   offlineNotified: boolean;
   hasExhaustedCredits: boolean;
@@ -17,6 +17,7 @@ export interface TCompany {
   name: string;
   email: string;
   paynow?: Paynow;
+  verified?: boolean;
   hadTrialMode: boolean;
   exchangeRates?: TExchangeRates;
   subscriptionType?: SubscriptionType;
