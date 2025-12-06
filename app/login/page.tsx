@@ -90,7 +90,7 @@ const LoginApp: React.FC = () => {
         <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
           Forgot Password?{" "}
           <a
-            href="#"
+            href="/reset"
             className="font-medium text-primary-400 hover:text-primary-700"
           >
             Request New
