@@ -1,18 +1,11 @@
 "use client";
-import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { CenterLoader } from "@/components/loaders/center-loader";
-
+import { AuthHandler } from "@/components/layouts/auth-handler";
 export default function AuthPage() {
-  const searchParams = useSearchParams();
-  useEffect(() => {
-    const id = searchParams.get("id");
-    const device = searchParams.get("device");
-    if (id && device) {
-      localStorage.setItem("refreshToken", id);
-      localStorage.setItem("deviceId", device);
-      window.location.href = "/";
-    }
-  }, [searchParams]);
-  return <CenterLoader />;
+  return (
+    <Suspense fallback={<CenterLoader />}>
+      <AuthHandler />
+    </Suspense>
+  );
 }
