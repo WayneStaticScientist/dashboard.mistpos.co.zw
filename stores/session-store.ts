@@ -154,8 +154,8 @@ const useSessionState = create<
     },
 
     getSessionState: async () => {
-      const user = localStorage.getItem("user");
-      if (!user) {
+      const token = localStorage.getItem("refreshToken");
+      if (!token) {
         if (window && window.location && window.location.href !== "/login") {
           window.location.href = "/login";
         }
