@@ -216,7 +216,7 @@ export const NavBarMenu: {
     group: "Info",
     children: [
       {
-        name: "Help And Support",
+        name: "Help & Support",
         page: "help",
         Icon: MdOutlineHelpOutline,
       },
