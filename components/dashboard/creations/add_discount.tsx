@@ -7,7 +7,14 @@ import { useNavigation } from "@/stores/use-navigation";
 import { useDiscountsStore } from "@/stores/discount-store";
 import { MistDivider } from "@/components/layouts/mist-divider";
 import { toBaseCurrence, toLocalCurrenceString } from "@/utils/currencies";
-import { Button, Checkbox, Input, Navbar, NavbarBrand } from "@heroui/react";
+import {
+  Button,
+  Checkbox,
+  Input,
+  Navbar,
+  NavbarBrand,
+  NumberInput,
+} from "@heroui/react";
 
 export const AddDiscountsNav: FC = () => {
   const session = useSessionState();
@@ -56,20 +63,16 @@ export const AddDiscountsNav: FC = () => {
         >
           Percentage Evaluation
         </Checkbox>
-        <Input
+        <NumberInput
           label={`Discount Value `}
-          value={
-            localDiscount.percentage
-              ? localDiscount.value.toFixed(2)
-              : toLocalCurrenceString(localDiscount.value)
-          }
+          value={localDiscount.value}
           startContent={
             localDiscount.percentage ? "%" : session.baseCurrence ?? "USD"
           }
-          onChange={(e) => {
+          onValueChange={(e) => {
             setLocalDiscount({
               ...localDiscount!,
-              value: toBaseCurrence(parseFloat(e.target.value)),
+              value: toBaseCurrence(e),
             });
           }}
         />

@@ -43,6 +43,7 @@ import { EditEmployeeNav } from "@/components/dashboard/edits/employee-edit";
 import { AddEmployeeNav } from "@/components/dashboard/creations/add_employee";
 import { CustomersNav } from "@/components/dashboard/customers-view";
 import { EditCustomerNav } from "@/components/dashboard/edits/edit-customer";
+import LogoutView from "@/components/dashboard/logout-view";
 import { AddCustomerNav } from "@/components/dashboard/creations/add_customer";
 import { StoresNav } from "@/components/dashboard/stores-view";
 import { EditStoreNav } from "@/components/dashboard/edits/store-edit";
@@ -58,7 +59,6 @@ import { PaymentGateWays } from "@/components/dashboard/gateways/payment-getways
 import { EditPaynowGateWay } from "@/components/dashboard/gateways/paynow/paynow-edit";
 import { SubscriptionView } from "@/components/dashboard/subscriptions-view";
 import { HelpAndSupport } from "@/components/dashboard/help-view";
-import LogoutView from "@/components/dashboard/logout-view";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   taxs: TaxesNav,

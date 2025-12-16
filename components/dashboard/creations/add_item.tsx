@@ -6,6 +6,7 @@ import {
   Input,
   Navbar,
   NavbarBrand,
+  NumberInput,
   Select,
   SelectItem,
   Table,
@@ -153,26 +154,26 @@ export const ItemModelCreate: FC = () => {
             >
               Weight
             </Checkbox>
-            <Input
-              value={toLocalCurrenceString(localProduct.price)}
+            <NumberInput
+              value={localProduct.price}
               label="Price"
               startContent={session.baseCurrence ?? "USD"}
-              onChange={(e) => {
+              onValueChange={(e) => {
                 setLocalProduct({
                   ...localProduct!,
-                  price: parseFloat(e.target.value),
+                  price: e,
                 });
               }}
             />
             {!localProduct.isCompositeItem && (
-              <Input
-                value={toLocalCurrenceString(localProduct.cost)}
+              <NumberInput
+                value={localProduct.cost}
                 label="Cost"
                 startContent={session.baseCurrence ?? "USD"}
-                onChange={(e) => {
+                onValueChange={(e) => {
                   setLocalProduct({
                     ...localProduct!,
-                    cost: parseFloat(e.target.value),
+                    cost: e,
                   });
                 }}
               />
@@ -242,23 +243,23 @@ export const ItemModelCreate: FC = () => {
           (!(localProduct.isCompositeItem && !localProduct.useProduction) ||
             !localProduct.isCompositeItem) && (
             <Fragment>
-              <Input
+              <NumberInput
                 label="Stock Quantity"
-                value={localProduct.stockQuantity.toString()}
-                onChange={(e) =>
+                value={localProduct.stockQuantity}
+                onValueChange={(e) =>
                   setLocalProduct({
                     ...localProduct!,
-                    stockQuantity: parseFloat(e.target.value),
+                    stockQuantity: e,
                   })
                 }
               />
-              <Input
+              <NumberInput
                 label="Reorder Level"
-                value={localProduct.lowStockThreshold.toString()}
-                onChange={(e) =>
+                value={localProduct.lowStockThreshold}
+                onValueChange={(e) =>
                   setLocalProduct({
                     ...localProduct!,
-                    lowStockThreshold: parseFloat(e.target.value),
+                    lowStockThreshold: e,
                   })
                 }
               />
