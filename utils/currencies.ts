@@ -1,3 +1,5 @@
+import { number } from "framer-motion";
+
 export const toLocalCurrency = (amount: number) => {
   if (!amount) return "$0";
   const userStorage = localStorage.getItem("user");
@@ -15,4 +17,10 @@ export const toLocalCurrenceString = (amount: number) => {
   const userStorage = localStorage.getItem("user");
   if (!userStorage) return `${amount.toFixed(2)}`;
   return `${amount.toFixed(2)}`;
+};
+export const toLocalCurrencyNumber = (amount: number): number => {
+  if (!amount) return 0;
+  const userStorage = localStorage.getItem("user");
+  if (!userStorage) return amount;
+  return amount;
 };

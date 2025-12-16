@@ -6,6 +6,7 @@ import {
   Input,
   Navbar,
   NavbarBrand,
+  NumberInput,
   Select,
   SelectItem,
   Table,
@@ -30,6 +31,7 @@ import {
   toBaseCurrence,
   toLocalCurrenceString,
   toLocalCurrency,
+  toLocalCurrencyNumber,
 } from "@/utils/currencies";
 import { InvSelectionModal } from "@/components/layouts/inv-select-modal";
 import { useMofiersStore } from "@/stores/modifiers-store";
@@ -145,26 +147,26 @@ export const ItemModelEdit: FC = () => {
               >
                 Weight
               </Checkbox>
-              <Input
-                value={toLocalCurrenceString(localProduct.price)}
+              <NumberInput
+                value={toLocalCurrencyNumber(localProduct.price)}
                 label="Price"
                 startContent={session.baseCurrence ?? "USD"}
-                onChange={(e) => {
+                onValueChange={(e) => {
                   setLocalProduct({
                     ...localProduct!,
-                    price: toBaseCurrence(parseFloat(e.target.value)),
+                    price: e,
                   });
                 }}
               />
               {!localProduct.isCompositeItem && (
-                <Input
-                  value={toLocalCurrenceString(localProduct.cost)}
+                <NumberInput
+                  value={toLocalCurrencyNumber(localProduct.cost)}
                   label="Cost"
                   startContent={session.baseCurrence ?? "USD"}
-                  onChange={(e) => {
+                  onValueChange={(e) => {
                     setLocalProduct({
                       ...localProduct!,
-                      cost: toBaseCurrence(parseFloat(e.target.value)),
+                      cost: toBaseCurrence(e),
                     });
                   }}
                 />
@@ -234,23 +236,23 @@ export const ItemModelEdit: FC = () => {
             (!(localProduct.isCompositeItem && !localProduct.useProduction) ||
               !localProduct.isCompositeItem) && (
               <Fragment>
-                <Input
+                <NumberInput
                   label="Stock Quantity"
-                  value={localProduct.stockQuantity.toString()}
-                  onChange={(e) =>
+                  value={localProduct.stockQuantity}
+                  onValueChange={(e) =>
                     setLocalProduct({
                       ...localProduct!,
-                      stockQuantity: parseFloat(e.target.value),
+                      stockQuantity: e,
                     })
                   }
                 />
-                <Input
+                <NumberInput
                   label="Reorder Level"
-                  value={localProduct.lowStockThreshold.toString()}
-                  onChange={(e) =>
+                  value={localProduct.lowStockThreshold}
+                  onValueChange={(e) =>
                     setLocalProduct({
                       ...localProduct!,
-                      lowStockThreshold: parseFloat(e.target.value),
+                      lowStockThreshold: e,
                     })
                   }
                 />
