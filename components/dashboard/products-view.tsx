@@ -99,9 +99,12 @@ export const ProductsNav = () => {
                     <TableRow key={index}>
                       <TableCell className="flex items-center gap-1">
                         <div
+                          className="w-10 h-10 overflow-clip rounded-full flex items-center justify-center"
                           dangerouslySetInnerHTML={{ __html: e.shape }}
                           style={{
                             color: MaterialColors.intToHexARGB(e.color),
+                            width: "40px",
+                            height: "40px",
                           }}
                         />
                         {e.name}
