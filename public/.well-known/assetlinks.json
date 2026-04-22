@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "aca.bicosatstudios.mistpos.mistpos",
+      "sha256_cert_fingerprints": [
+        "87:00:C6:33:67:C4:BB:78:2C:69:BE:02:F4:66:54:C8:7A:C6:A8:54:0C:B9:FC:FD:B1:3E:F4:10:53:01:40:DC"
+      ]
+    }
+  }
+]
