@@ -4,17 +4,26 @@ import { decodeFromAxios } from "@/utils/errors";
 import { errorToast } from "@/utils/toaster";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-export type WeekListType = {
+
+export type Period = "daily" | "weekly" | "monthly" | "yearly" | "all-time" | "custom";
+
+export type GraphDataType = {
   date: string;
   totalPaid: number;
   totalProfit: number;
+  totalExpenses: number;
   uniqueCustomersCount: number;
+  receiptsCount: number;
 };
+
 export const useMainReportStore = create<{
   loaded: boolean;
   loading: boolean;
+  period: Period;
+  startDate: string;
+  endDate: string;
   totalProducts: number;
-  list: WeekListType[];
+  graphData: GraphDataType[];
   items: TProduct[];
   productStats: {
     totalStock: number;
@@ -32,20 +41,34 @@ export const useMainReportStore = create<{
     totalDiscounts: number;
     totalSalesValue: number;
     totalLossValue: number;
+    totalExpenses: number;
+    expensesCount: number;
     listCashiers: {
       name: string;
       id: string;
     }[];
   };
-  loadAdminStats: (
-    startDate?: string,
-    endDate?: string,
-    weekEndDate?: string
-  ) => void;
+  monthlySummary: {
+    peakSalesTime: string;
+    salesRecommendation: string;
+    totalProfit: number;
+    totalRevenue: number;
+    totalExpenses: number;
+    numberOfReceipts: number;
+    numberOfItemsSold: number;
+    top5SellingDays: { date: string; sales: number }[];
+    expensesGraph: { date: string; amount: number }[];
+    top5ExpensiveExpenses: { name: string; amount: number; date: string }[];
+  };
+  setPeriod: (period: Period, customDates?: { start: string; end: string }) => void;
+  loadAdminStats: () => void;
 }>()(
-  immer((set) => ({
+  immer((set, get) => ({
     loaded: false,
     loading: true,
+    period: "monthly", // Default to monthly as requested
+    startDate: "",
+    endDate: "",
     totalProducts: 0,
     productStats: {
       totalStock: 0,
@@ -65,28 +88,94 @@ export const useMainReportStore = create<{
       totalDiscounts: 0,
       totalSalesValue: 0,
       totalLossValue: 0,
+      totalExpenses: 0,
+      expensesCount: 0,
     },
-    list: [],
-    loadAdminStats: async (startDate = "", endDate = "", weekEndDate = "") => {
+    monthlySummary: {
+      peakSalesTime: "N/A",
+      salesRecommendation: "Not enough data.",
+      totalProfit: 0,
+      totalRevenue: 0,
+      totalExpenses: 0,
+      numberOfReceipts: 0,
+      numberOfItemsSold: 0,
+      top5SellingDays: [],
+      expensesGraph: [],
+      top5ExpensiveExpenses: [],
+    },
+    graphData: [],
+    setPeriod: (period, customDates) => {
+      set((state) => {
+        state.period = period;
+        if (customDates) {
+          state.startDate = customDates.start;
+          state.endDate = customDates.end;
+        } else {
+          // Reset dates for predefined periods
+          state.startDate = "";
+          state.endDate = "";
+          
+          if (period === "daily") {
+            const today = new Date().toISOString().split("T")[0];
+            state.startDate = today;
+            state.endDate = today;
+          } else if (period === "monthly") {
+            const date = new Date();
+            state.startDate = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split("T")[0];
+            state.endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split("T")[0];
+          } else if (period === "yearly") {
+            const date = new Date();
+            state.startDate = new Date(date.getFullYear(), 0, 1).toISOString().split("T")[0];
+            state.endDate = new Date(date.getFullYear(), 11, 31).toISOString().split("T")[0];
+          }
+        }
+      });
+      get().loadAdminStats();
+    },
+    loadAdminStats: async () => {
       try {
         set((state) => {
           state.loading = true;
         });
-        const [stats, sevenDayShow, items] = await Promise.all([
-          fetchStats(startDate),
-          fetchSevenDayData(weekEndDate),
-          fetchItems({ limit: 5 }),
+        const { startDate, endDate, period } = get();
+        
+        // Map period to the backend expected values. all-time/custom default to yearly graph for now.
+        const graphPeriod = period === "all-time" || period === "custom" ? "yearly" : period;
+
+        const [stats, graphResponse, monthlyReports] = await Promise.all([
+          fetchStats("", ""), // Independent of graph period, fetches default/all-time stats
+          fetchGraphData(endDate || new Date().toISOString(), graphPeriod),
+          fetchMonthlyReports(),
         ]);
+
         set((state) => {
           state.loaded = true;
-          state.items = items;
           state.totalProducts = stats.totalProducts;
           state.productStats = stats.productStats;
-          state.salesStates = stats.salesStates;
-          state.list = stats.list;
+          
+          state.salesStates = {
+            ...state.salesStates,
+            ...stats.salesStates,
+          };
+          
+          if (monthlyReports) {
+            state.monthlySummary = {
+              peakSalesTime: monthlyReports.peakSalesTime || "N/A",
+              salesRecommendation: monthlyReports.salesRecommendation || "Not enough data.",
+              totalProfit: monthlyReports.totalProfit || 0,
+              totalRevenue: monthlyReports.totalRevenue || 0,
+              totalExpenses: monthlyReports.totalExpenses || 0,
+              numberOfReceipts: monthlyReports.numberOfReceipts || 0,
+              numberOfItemsSold: monthlyReports.numberOfItemsSold || 0,
+              top5SellingDays: monthlyReports.top5SellingDays || [],
+              expensesGraph: monthlyReports.expensesGraph || [],
+              top5ExpensiveExpenses: monthlyReports.top5ExpensiveExpenses || [],
+            };
+          }
+
+          state.graphData = graphResponse.list || [];
           state.loading = false;
         });
-        set(sevenDayShow);
       } catch (e) {
         errorToast(decodeFromAxios(e).message);
       } finally {
@@ -97,6 +186,7 @@ export const useMainReportStore = create<{
     },
   }))
 );
+
 async function fetchStats(startDate = "", endDate = ""): Promise<any> {
   try {
     const response = await apiClient.get(
@@ -108,10 +198,10 @@ async function fetchStats(startDate = "", endDate = ""): Promise<any> {
   }
 }
 
-async function fetchSevenDayData(weekEndDate = ""): Promise<any> {
+async function fetchGraphData(endDate = "", period = "daily"): Promise<any> {
   try {
     const response = await apiClient.get(
-      `admin/stats/daily?endDate=${weekEndDate}`
+      `/admin/stats/daily?endDate=${endDate}&period=${period}`
     );
     return response.data;
   } catch (e) {
@@ -119,18 +209,10 @@ async function fetchSevenDayData(weekEndDate = ""): Promise<any> {
   }
 }
 
-async function fetchItems({
-  limit = 5,
-  page = 1,
-  search = "",
-}: {
-  limit?: number;
-  page?: number;
-  search?: string;
-}): Promise<any> {
+async function fetchMonthlyReports(): Promise<any> {
   try {
-    const response = await apiClient.get(`/cashier/products?limit=${limit}`);
-    return response.data.list;
+    const response = await apiClient.get(`/admin/stats/monthly-reports`);
+    return response.data;
   } catch (e) {
     throw e;
   }

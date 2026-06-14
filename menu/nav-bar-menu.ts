@@ -213,6 +213,17 @@ export const NavBarMenu: {
     ],
   },
   {
+    group: "Admin",
+    children: [
+      {
+        name: "Super Admin",
+        page: "superadmin",
+        Icon: FaChartBar,
+        subscriptionLevels: ["pro", "enterprise"],
+      },
+    ],
+  },
+  {
     group: "Info",
     children: [
       {

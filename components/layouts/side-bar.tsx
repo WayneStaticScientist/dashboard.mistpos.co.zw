@@ -1,9 +1,8 @@
 "use client";
 import { useState } from "react";
 import { NavBarItem, NavBarMenu } from "@/menu/nav-bar-menu";
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { Button } from "@heroui/react";
-import { CgClose } from "react-icons/cg";
+import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
 import { useCompanyStore } from "@/stores/companies-store";
 import { errorToast } from "@/utils/toaster";
 
@@ -23,40 +22,47 @@ export default function SideBar({
     <aside
       className={`fixed inset-y-0 left-0 z-20 w-72 transform ${
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0 transition-transform duration-200 ease-in-out bg-background shadow-2xl`}
+      } md:translate-x-0 transition-transform duration-300 ease-in-out bg-[#0f0f11] border-r border-white/5 shadow-2xl flex flex-col`}
     >
-      <div className="h-16 flex items-center px-4 border-b border-[#e6e6e620] justify-between">
-        <h1 className="font-bold text-lg text-foreground">MistPOS</h1>
+      <div className="h-[72px] flex items-center px-6 border-b border-white/5 justify-between flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20">
+            MP
+          </div>
+          <h1 className="font-bold text-lg text-ui-text-main tracking-tight">MistPOS</h1>
+        </div>
         <Button
           isIconOnly
-          variant="bordered"
-          onPress={() => setSibeBarOpen(false)}
+          variant="ghost"
+          className="md:hidden text-ui-text-muted hover:text-white hover:bg-white/5 rounded-full"
+          onClick={() => setSibeBarOpen(false)}
         >
-          <CgClose />
+          <XMarkIcon className="w-5 h-5" />
         </Button>
       </div>
       {company.userCompany && !company.userCompany.verified && (
-        <Button
-          className="ml-3 mt-3"
-          variant="bordered"
-          color="warning"
-          onPress={() => {
-            if (window) {
-              window.location.href = "/verify";
-            }
-          }}
-        >
-          Verify Account
-        </Button>
+        <div className="px-3 pt-3">
+          <Button
+            className="w-full"
+            variant="flat"
+            onClick={() => {
+              if (window) {
+                window.location.href = "/verify";
+              }
+            }}
+          >
+            Verify Account
+          </Button>
+        </div>
       )}
-      <nav className="p-4 text-foreground! overflow-y-auto h-full">
+      <nav className="p-4 text-ui-text-main overflow-y-auto flex-1 custom-scrollbar">
         {NavBarMenu.map((group, key) => {
           return (
-            <div key={key}>
-              <h2 className="px-3 py-2 text-xs font-semibold uppercase text-gray-400">
+            <div key={key} className="mb-6 last:mb-0">
+              <h2 className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-ui-text-muted/60">
                 {group.group}
               </h2>
-              <div className="pl-4">
+              <div className="pl-1 mt-1 space-y-1">
                 {parseChildrens(group.children, currentPage, setCurrentPage)}
               </div>
             </div>
@@ -113,7 +119,7 @@ const NavItem: React.FC<
 
   if (isCollapsible) {
     const collapseClasses = isOpen
-      ? "max-h-screen opacity-100 pt-1" // We add pt-1 for slight spacing at the top
+      ? "max-h-screen opacity-100 pt-1" 
       : "max-h-0 opacity-0";
 
     return (
@@ -121,34 +127,32 @@ const NavItem: React.FC<
         <button
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
-          className={`flex items-center cursor-pointer justify-between w-full p-3 text-sm font-medium text-foreground
-              hover:text-primary rounded-lg transition duration-150
-              focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                isOpen ? "text-primary" : ""
-              }`}
+          className={`flex items-center cursor-pointer justify-between w-full p-2.5 text-sm font-medium rounded-lg transition-all duration-200 outline-none focus:ring-2 focus:ring-blue-500/50 ${
+            isOpen 
+              ? "bg-white/[0.03] text-white" 
+              : "text-ui-text-muted hover:bg-white/[0.03] hover:text-white"
+          }`}
         >
           <div className="flex items-center">
             <Icon
-              className={`w-5 h-5 mr-3 ${
-                isOpen ? "text-primary" : "text-foreground"
+              className={`w-5 h-5 mr-3 transition-colors ${
+                isOpen ? "text-blue-500" : "text-ui-text-muted group-hover:text-white"
               }`}
             />
             {name}
           </div>
 
-          {/* Arrow Icon (Rotates when open) */}
           <ChevronRightIcon
             className={`w-4 h-4 ml-2 transition-transform duration-200 ${
-              isOpen ? "rotate-90 text-primary" : "rotate-0 text-foreground"
+              isOpen ? "rotate-90 text-white" : "text-ui-text-muted/50"
             }`}
           />
         </button>
 
-        {/* Dropdown Content (Collapsible list of children) */}
         <div
-          className={`overflow-hidden transition-all duration-300 ease-out ${collapseClasses}  `}
+          className={`overflow-hidden transition-all duration-300 ease-out ${collapseClasses}`}
         >
-          <ul className="ml-4 pl-1 space-y-1">
+          <ul className="ml-5 pl-2 border-l border-white/5 space-y-1 mt-1">
             {parseChildrens(children, currentPage, setCurrentPage)}
           </ul>
         </div>
@@ -156,7 +160,8 @@ const NavItem: React.FC<
     );
   }
 
-  // Regular Nav Item (Non-collapsible)
+  const isActive = currentPage === page;
+
   return (
     <a
       onClick={() => {
@@ -179,22 +184,21 @@ const NavItem: React.FC<
         }
         setCurrentPage(page);
       }}
-      className={`flex items-center w-full p-2 text-sm font-medium text-foreground cursor-pointer
-         hover:text-primary rounded-lg transition duration-150 ${
-           currentPage == page ? "bg-[#e6e6e640]" : ""
-         }
-          ${
-            subscriptionLevels != null
-              ? subscriptionLevels.find(
-                  (e) =>
-                    e == (company.userCompany?.subscriptionType?.type ?? "free")
-                )
-                ? "text-foreground"
-                : "text-danger!"
-              : "text-foreground!"
-          } `}
+      className={`flex items-center w-full p-2.5 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer outline-none focus:ring-2 focus:ring-blue-500/50 ${
+        isActive 
+          ? "bg-blue-600/10 text-blue-500 shadow-sm border-l-[3px] border-blue-500" 
+          : "text-ui-text-muted hover:bg-white/[0.03] hover:text-white border-l-[3px] border-transparent"
+      } ${
+        subscriptionLevels != null
+          ? subscriptionLevels.find(
+              (e) => e === (company.userCompany?.subscriptionType?.type ?? "free")
+            )
+            ? ""
+            : "text-ui-danger opacity-75"
+          : ""
+      }`}
     >
-      <Icon className="w-5 h-5 mr-3 " />
+      <Icon className={`w-5 h-5 mr-3 transition-colors ${isActive ? 'text-blue-500' : 'text-ui-text-muted'}`} />
       {name}
     </a>
   );

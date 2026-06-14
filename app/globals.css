@@ -5,65 +5,106 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Legacy/Hero UI vars */
   --background: #ffffff;
   --foreground: #171717;
   --color-primary: 215 78 50;
-  --color-primary-foreground: 0 0 100; /* Typically White/Light for foreground */
-  --color-accent: 255 153 0; /* You can define accent */
-  /* Define other necessary channels if customizing deep: */
-  --color-focus: 215 78 50; /* For input focus rings */
-}
-/* globals.css or equivalent */
-html,
-body {
-  /* CRITICAL: Ensures the root elements take up the full viewport */
-  height: 100vh;
-  width: 100vw;
+  --color-primary-foreground: 0 0 100;
+  --color-accent: 255 153 0;
+  --color-focus: 215 78 50;
 
-  /* CRITICAL: Prevents horizontal scrollbar from appearing */
-  /* Even if margin: 0 is set, this is a strong defense */
-  overflow-x: hidden;
-}
-/* Define the Green Palette (as HSL values: H S L) */
-/* This is an example, you can adjust the HSL values for your preferred green */
-* {
-  scrollbar-color: #040f0009;
-  scrollbar-width: 1px;
-}
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track:vertical {
-  width: 1;
-  background-color: #040f0009;
-  border-radius: 5px;
-}
-::-webkit-scrollbar-track {
-  width: 1;
-  background-color: #040f0003;
-  border-radius: 5px;
-}
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Modern Theme UI Primitives (Light) */
+  --tw-ui-bg: #fdfdfd;
+  --tw-ui-surface: #ffffff;
+  --tw-ui-border: #e2e8f0;
+  --tw-ui-text-main: #0f172a;
+  --tw-ui-text-muted: #64748b;
+  --tw-ui-primary: #6366f1; /* Indigo */
+  --tw-ui-primary-hover: #4f46e5;
+  --tw-ui-primary-text: #ffffff;
+  --tw-ui-ring: rgba(99, 102, 241, 0.3);
+  --tw-ui-danger: #ef4444;
+  --tw-ui-success: #10b981;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Legacy/Hero UI vars */
     --background: #0a0a0a;
     --foreground: #ededed;
     --color-primary: green;
+
+    /* Modern Theme UI Primitives (Dark) */
+    --tw-ui-bg: #020617; /* Slate 950 */
+    --tw-ui-surface: #0f172a; /* Slate 900 */
+    --tw-ui-border: #1e293b; /* Slate 800 */
+    --tw-ui-text-main: #f8fafc; /* Slate 50 */
+    --tw-ui-text-muted: #94a3b8; /* Slate 400 */
+    --tw-ui-primary: #818cf8; /* Indigo 400 */
+    --tw-ui-primary-hover: #6366f1;
+    --tw-ui-primary-text: #ffffff;
+    --tw-ui-ring: rgba(129, 140, 248, 0.3);
   }
 }
-:root {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+
+.dark {
+    /* Modern Theme UI Primitives (Dark) - Forced Dark Mode */
+    --tw-ui-bg: #020617;
+    --tw-ui-surface: #0f172a;
+    --tw-ui-border: #1e293b;
+    --tw-ui-text-main: #f8fafc;
+    --tw-ui-text-muted: #94a3b8;
+    --tw-ui-primary: #818cf8;
+    --tw-ui-primary-hover: #6366f1;
+    --tw-ui-primary-text: #ffffff;
+    --tw-ui-ring: rgba(129, 140, 248, 0.3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Inter", var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono);
+  
+  /* Map modern variables to Tailwind colors */
+  --color-ui-bg: var(--tw-ui-bg);
+  --color-ui-surface: var(--tw-ui-surface);
+  --color-ui-border: var(--tw-ui-border);
+  --color-ui-text-main: var(--tw-ui-text-main);
+  --color-ui-text-muted: var(--tw-ui-text-muted);
+  --color-ui-primary: var(--tw-ui-primary);
+  --color-ui-primary-hover: var(--tw-ui-primary-hover);
+  --color-ui-primary-text: var(--tw-ui-primary-text);
+  --color-ui-ring: var(--tw-ui-ring);
+  --color-ui-danger: var(--tw-ui-danger);
+  --color-ui-success: var(--tw-ui-success);
+}
+
+html, body {
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  background: var(--background); /* Keep for hero ui */
+  color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  scrollbar-color: var(--tw-ui-border) transparent;
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tw-ui-border);
+  border-radius: 6px;
 }
 
 @utility scrollbar-hidden {
@@ -72,9 +113,4 @@ body {
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

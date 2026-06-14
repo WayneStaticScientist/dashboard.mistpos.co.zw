@@ -1,15 +1,5 @@
 "use client";
-import { TProduct } from "@/types/product-t";
-import {
-  HomeIcon as IconHome,
-  CubeIcon as IconBox,
-  ShoppingCartIcon as IconShoppingCart,
-} from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
-import { Button, Input } from "@heroui/react";
-import NormalError from "../errors/normal-errror";
-import { MistBarGraph } from "../graphs/bar-graph";
-import { MistLineGraph } from "../graphs/line-graph";
+import { useEffect } from "react";
 import { NormalLoader } from "../loaders/normal-loader";
 import { CardOverview } from "../layouts/card-overview";
 import { TableProducts } from "../layouts/table-products";
@@ -18,23 +8,31 @@ import { ActiveEmployees } from "../layouts/active-employees";
 import { useMainReportStore } from "@/stores/main-report-store";
 import { MaterialColors } from "@/utils/colors";
 import { toLocalCurrency } from "@/utils/currencies";
-import { BiSearchAlt } from "react-icons/bi";
-import { errorToast } from "@/utils/toaster";
+import { MistLineGraph } from "../graphs/line-graph";
+import { MistBarGraph } from "../graphs/bar-graph";
+import { PeriodSelector } from "../ui/period-selector";
+import { 
+  BanknotesIcon, 
+  PresentationChartLineIcon, 
+  ArrowTrendingDownIcon, 
+  ReceiptRefundIcon, 
+  WalletIcon, 
+  TagIcon, 
+  ArchiveBoxIcon, 
+  InformationCircleIcon 
+} from "@heroicons/react/24/outline";
+
 export const MainReport = () => {
   const report = useMainReportStore();
-  const [query, setQuery] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [weekEndDate, setWeekEndDate] = useState("");
+
   useEffect(() => {
     report.loadAdminStats();
   }, []);
-  if (report.loading) {
+
+  if (report.loading && !report.loaded) {
     return <NormalLoader />;
   }
-  if (!report.loaded) {
-    return <NormalError message="failed to load admin stats" />;
-  }
+
   const revenueMargin =
     (report.productStats.totalRevenue - report.productStats.totalCost) /
     (Math.abs(report.productStats.totalRevenue) > 0
@@ -56,202 +54,198 @@ export const MainReport = () => {
     (Math.abs(report.salesStates.totalSalesValue) > 0
       ? Math.abs(report.salesStates.totalSalesValue)
       : 1);
+
+  // Derive totals from graphData based on the selected period
+  const derivedExpenses = report.graphData.reduce((acc, curr) => acc + (curr.totalExpenses || 0), 0);
+  const derivedCustomers = report.graphData.reduce((acc, curr) => acc + (curr.uniqueCustomersCount || 0), 0);
+  const derivedReceipts = report.graphData.reduce((acc, curr) => acc + (curr.receiptsCount || 0), 0);
+
   return (
-    <>
-      <section className=" grid grid-cols-5   gap-4 mb-4 items-center justify-center">
-        <Input
-          type="date"
-          className=" col-span-2"
-          label="start date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
-        <Input
-          className=" col-span-2"
-          type="date"
-          label="end date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
-        <Button
-          color="primary"
-          variant="bordered"
-          isIconOnly
-          onPress={() => {
-            report.loadAdminStats(startDate, endDate, weekEndDate);
-          }}
-        >
-          <BiSearchAlt />
-        </Button>
-      </section>
+    <div className="max-w-7xl mx-auto space-y-6 pb-20 animate-in fade-in duration-500">
+      {/* Header & Controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ui-surface p-4 rounded-xl border border-white/5 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-bold text-ui-text-main">Sales Summary</h1>
+          <p className="text-sm text-ui-text-muted mt-1">Overview of your business performance</p>
+        </div>
+      </div>
 
-      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-center justify-center">
-        <CircularWheelChart
-          className=""
-          label={"Total Sales/Cost/Discounts"}
-          chartData={[
-            {
-              name: "Sales ",
-              value: report.salesStates.totalSalesValue,
-              color: MaterialColors.MaterialGreen,
-            },
-            {
-              name: "Costs",
-              value: report.salesStates.totalCosts,
-              color: MaterialColors.MaterialBlue,
-            },
-            {
-              name: "Discounts",
-              value: report.salesStates.totalDiscounts,
-              color: MaterialColors.MaterialPink,
-            },
-          ]}
-        />
-        <CircularWheelChart
-          label={"Inventory StockValue/Revenue"}
-          chartData={[
-            {
-              name: "Stock",
-              value: report.productStats.totalCost,
-              color: MaterialColors.MaterialTeal,
-            },
-            {
-              name: "Revenue",
-              value: report.productStats.totalRevenue,
-              color: MaterialColors.MaterialOrange,
-            },
-          ]}
-        />
-        <CircularWheelChart
-          label={"Profit/Loss"}
-          chartData={[
-            {
-              name: "Loss",
-              value: report.salesStates.totalLossValue,
-              color: MaterialColors.MaterialRed,
-            },
-            {
-              name: "Profit",
-              value:
-                report.salesStates.totalCosts -
-                report.salesStates.totalSalesValue,
-              color: MaterialColors.MaterialGreen,
-            },
-          ]}
-        />
-      </section>
-      <span className="flex text-white my-2 mt-4">Products Reports</span>
-      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      {/* KPI Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <CardOverview
-          label={"Total Revenue"}
-          increaseValue={`${revenueMargin.toFixed(2)}% margin`}
-          positive={revenueMargin > 0}
-          value={toLocalCurrency(report.productStats.totalRevenue)}
-        />
-        <CardOverview
-          label={"Stock Value"}
-          increaseValue={`${toLocalCurrency(stockAverage)} avg`}
-          positive={true}
-          value={toLocalCurrency(report.productStats.totalCost)}
-        />
-        <CardOverview
-          label={"Total Stock"}
-          increaseValue={`${toLocalCurrency(stockAverage)} avg`}
-          positive={report.productStats.totalStock > 0}
-          value={report.productStats.totalStock.toString()}
-        />
-        <CardOverview
-          label={"Total Products"}
-          positive={report.totalProducts < report.productStats.totalStock}
-          increaseValue={`${productAverage.toFixed(2)}% health`}
-          value={report.totalProducts.toString()}
-        />
-      </section>
-      <span className="flex text-white my-2 mt-4">Sales Reports</span>
-      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <CardOverview
-          label={"Profit"}
-          increaseValue={`${profitMargin.toFixed(2)}% gain`}
-          positive={profitMargin > 0}
+          label="Net Profit"
           value={toLocalCurrency(
-            report.salesStates.totalSalesValue - report.salesStates.totalCosts
+            report.salesStates.totalSalesValue -
+            report.salesStates.totalCosts -
+            report.salesStates.totalExpenses -
+            report.salesStates.totalLossValue
           )}
+          icon={BanknotesIcon}
+          color="text-ui-success"
         />
         <CardOverview
-          label={"Total Sales"}
-          value={toLocalCurrency(report.salesStates.totalSalesValue)}
+          label="Gross Profit"
+          value={toLocalCurrency(report.salesStates.totalSalesValue - report.salesStates.totalCosts)}
+          icon={PresentationChartLineIcon}
+          color="text-blue-500"
         />
         <CardOverview
-          label={"Taxes"}
-          value={toLocalCurrency(report.salesStates.totalTaxs)}
+          label="Expenses"
+          value={toLocalCurrency(report.salesStates.totalExpenses)}
+          icon={WalletIcon}
+          color="text-orange-500"
         />
         <CardOverview
-          label={"Total Discounts"}
-          value={toLocalCurrency(report.salesStates.totalDiscounts)}
-        />
-
-        <CardOverview
-          label={"Total Refunds"}
-          value={toLocalCurrency(report.salesStates.totalRefunds)}
-        />
-        <CardOverview
-          label={"Total Loss"}
-          color={MaterialColors.MaterialRed}
+          label="Losses"
           value={toLocalCurrency(report.salesStates.totalLossValue)}
+          icon={ArrowTrendingDownIcon}
+          color="text-red-500"
         />
         <CardOverview
-          label={"Receipts"}
-          value={report.salesStates.totalReceipts.toString()}
+          label="Refunds"
+          value={toLocalCurrency(report.salesStates.totalRefunds)}
+          icon={ReceiptRefundIcon}
+          color="text-yellow-500"
         />
         <CardOverview
-          label={"Active Cashiers"}
-          value={report.salesStates.numberOfCashiers.toString()}
+          label="Discounts"
+          value={toLocalCurrency(report.salesStates.totalDiscounts)}
+          icon={TagIcon}
+          color="text-pink-500"
         />
-      </section>
-      <section className="my-12 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-center justify-center">
-        <Input
-          type="date"
-          label="Weekly Report From"
-          value={weekEndDate}
-          onChange={(e) => setWeekEndDate(e.target.value)}
-        />
-        <Button
-          color="primary"
-          variant="bordered"
-          isIconOnly
-          onPress={() => {
-            if (weekEndDate.trim() == "") {
-              return errorToast("Anchor date not specified");
-            }
-            report.loadAdminStats(startDate, endDate, weekEndDate);
-          }}
-        >
-          <BiSearchAlt />
-        </Button>
-      </section>
-      <section className="grid grid-cols-1 lg:grid-cols-2">
-        <MistLineGraph label={"Weekly Sales"} />
-        <MistBarGraph />
-      </section>
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <TableProducts query={query} />
-        <ActiveEmployees />
-      </section>
-      {/* Mobile bottom nav (only visible on small screens) */}
-      {/* <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 md:hidden w-[92%] bg-white border rounded-xl shadow-lg flex items-center justify-around py-2">
-        <button className="flex flex-col items-center text-xs">
-          <IconHome className="w-5 h-5" />
-          <span>Home</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          <IconBox className="w-5 h-5" />
-          <span>Inventory</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          <IconShoppingCart className="w-5 h-5" />
-          <span>POS</span>
-        </button>
-      </nav> */}
-    </>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-ui-surface rounded-xl border border-white/5 shadow-sm p-4 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text-main">Revenue & Profit Trend</h2>
+            <PeriodSelector 
+              value={report.period} 
+              onChange={(period, dates) => report.setPeriod(period, dates)} 
+            />
+          </div>
+          <div className="h-80 w-full">
+             <MistLineGraph label={`${report.period.toUpperCase()} Trend`} />
+          </div>
+        </div>
+        <div className="flex flex-col gap-6">
+          <div className="bg-ui-surface rounded-xl border border-white/5 shadow-sm p-4 h-full flex flex-col justify-center">
+            <h2 className="text-sm font-semibold text-ui-text-muted mb-2 text-center">Sales Breakdown</h2>
+            <CircularWheelChart
+              label="Sales/Cost/Expenses"
+              chartData={[
+                { name: "Sales", value: report.salesStates.totalSalesValue, color: MaterialColors.MaterialGreen },
+                { name: "Costs", value: report.salesStates.totalCosts, color: MaterialColors.MaterialBlue },
+                { name: "Expenses", value: derivedExpenses, color: MaterialColors.MaterialOrange },
+                { name: "Discounts", value: report.salesStates.totalDiscounts, color: MaterialColors.MaterialPink },
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Monthly Summary */}
+      <div>
+        <h3 className="text-lg font-bold text-ui-text-main mb-4">Monthly Summary</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <CardOverview
+            label="Net Profit"
+            value={toLocalCurrency(report.monthlySummary.totalProfit - report.monthlySummary.totalExpenses)}
+            icon={BanknotesIcon}
+            color="text-ui-success"
+          />
+          <CardOverview
+            label="Gross Profit"
+            value={toLocalCurrency(report.monthlySummary.totalProfit)}
+            icon={PresentationChartLineIcon}
+            color="text-blue-500"
+          />
+          <CardOverview
+            label="Revenue"
+            value={toLocalCurrency(report.monthlySummary.totalRevenue)}
+            icon={WalletIcon}
+            color="text-green-500"
+          />
+          <CardOverview
+            label="Expenses"
+            value={toLocalCurrency(report.monthlySummary.totalExpenses)}
+            icon={ArrowTrendingDownIcon}
+            color="text-orange-500"
+          />
+          <CardOverview
+            label="Items Sold"
+            value={report.monthlySummary.numberOfItemsSold.toString()}
+            icon={ArchiveBoxIcon}
+            color="text-purple-500"
+          />
+          <CardOverview
+            label="Receipts"
+            value={report.monthlySummary.numberOfReceipts.toString()}
+            icon={ReceiptRefundIcon}
+            color="text-teal-500"
+          />
+        </div>
+        
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-ui-surface border border-white/5 p-4 rounded-lg shadow-sm">
+            <h4 className="text-sm font-semibold text-ui-text-main mb-3">Top 5 Days (Revenue)</h4>
+            <div className="space-y-3">
+              {report.monthlySummary.top5SellingDays.length > 0 ? report.monthlySummary.top5SellingDays.map((day, idx) => (
+                <div key={idx} className="flex justify-between items-center text-sm">
+                  <span className="text-ui-text-muted">{new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                  <span className="font-medium text-ui-text-main">{toLocalCurrency(day.sales)}</span>
+                </div>
+              )) : (
+                <div className="text-sm text-ui-text-muted">No sales data available for this month.</div>
+              )}
+            </div>
+          </div>
+          <div className="bg-ui-surface border border-white/5 p-4 rounded-lg shadow-sm flex flex-col justify-center">
+            <strong className="text-ui-text-main font-semibold mb-3 flex items-center gap-2">
+              <InformationCircleIcon className="w-5 h-5 text-ui-primary"/> 
+              Insight & Recommendation
+            </strong>
+            <p className="text-sm text-ui-text-muted leading-relaxed">
+              {report.monthlySummary.salesRecommendation}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Expenses Analysis */}
+      <div>
+        <h3 className="text-lg font-bold text-ui-text-main mb-4 mt-8">Expenses Analysis</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-ui-surface rounded-xl border border-white/5 shadow-sm p-4 overflow-hidden">
+            <h2 className="text-lg font-semibold text-ui-text-main mb-4">Monthly Expenses Trend</h2>
+            <div className="h-80 w-full">
+               <MistBarGraph 
+                  title="Expenses Trend" 
+                  label="Amount" 
+                  data={report.monthlySummary.expensesGraph} 
+                  color="rgba(249, 115, 22, 0.8)" 
+               />
+            </div>
+          </div>
+          <div className="bg-ui-surface rounded-xl border border-white/5 shadow-sm p-4">
+            <h4 className="text-sm font-semibold text-ui-text-main mb-3">Top 5 Highest Expenses</h4>
+            <div className="space-y-3">
+              {report.monthlySummary.top5ExpensiveExpenses.length > 0 ? report.monthlySummary.top5ExpensiveExpenses.map((expense, idx) => (
+                <div key={idx} className="flex justify-between items-center text-sm border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-ui-text-main">{expense.name}</span>
+                    <span className="text-xs text-ui-text-muted">{new Date(expense.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                  </div>
+                  <span className="font-medium text-orange-500">{toLocalCurrency(expense.amount)}</span>
+                </div>
+              )) : (
+                <div className="text-sm text-ui-text-muted">No expenses recorded for this month.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };

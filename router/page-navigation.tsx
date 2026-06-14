@@ -59,6 +59,7 @@ import { PaymentGateWays } from "@/components/dashboard/gateways/payment-getways
 import { EditPaynowGateWay } from "@/components/dashboard/gateways/paynow/paynow-edit";
 import { SubscriptionView } from "@/components/dashboard/subscriptions-view";
 import { HelpAndSupport } from "@/components/dashboard/help-view";
+import { SuperAdminView } from "@/components/dashboard/superadmin-view";
 
 export const Navigations: Record<string, React.ComponentType<any>> = {
   taxs: TaxesNav,
@@ -122,6 +123,7 @@ export const Navigations: Record<string, React.ComponentType<any>> = {
   createInventoryCount: AddInventoryCount,
   receivePurchaseOrder: ReceivePurchaseOrder,
   createStockAdjustment: AddStockAdjustment,
+  superadmin: SuperAdminView,
 };
 
 export const MistNavigation = ({ path }: { path: string }) => {

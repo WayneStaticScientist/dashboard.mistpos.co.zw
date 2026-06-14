@@ -9,13 +9,9 @@ import {
   Title,
   Tooltip,
   Legend,
-  ChartOptions, // Import ChartOptions type
-  ChartData, // Import ChartData type
 } from "chart.js";
 import { useMainReportStore } from "@/stores/main-report-store";
 
-// 1. Register Chart.js components
-// This step is crucial for Chart.js to work correctly
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -26,152 +22,128 @@ ChartJS.register(
   Legend
 );
 
-// Define the Chart Type for type safety (Line chart)
-type ChartType = "line";
-
-// 2. Define Chart Options (Styling, Responsiveness)
-const options: ChartOptions<ChartType> = {
-  responsive: true,
-  maintainAspectRatio: false, // Allows flexible sizing within the container
-  plugins: {
-    legend: {
-      position: "top" as const, // Chart.js requires position to be a specific string literal
-      labels: {
-        font: {
-          family: "Inter",
-        },
-      },
-    },
-    title: {
-      display: true,
-      text: "Monthly Revenue Growth (USD)",
-      font: {
-        size: 18,
-        family: "Inter",
-      },
-      color: "#1f2937", // Dark gray title
-    },
-    tooltip: {
-      mode: "index",
-      intersect: false,
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: false,
-      title: {
-        display: true,
-        text: "Revenue",
-        font: { family: "Inter" },
-      },
-      grid: {
-        color: "#e5e7eb", // Light gray grid lines
-      },
-    },
-    x: {
-      title: {
-        display: true,
-        text: "Month",
-        font: { family: "Inter" },
-      },
-      grid: {
-        color: "#e5e7eb",
-      },
-    },
-  },
-};
-
-// 3. Define Chart Data
-const labels: string[] = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-];
-
-// 4. Main App Component (Using React.FC for function component typing)
 export const MistLineGraph = ({ label }: { label: string }) => {
   const report = useMainReportStore();
 
   return (
-    <div className=" bg-background   flex items-start justify-center font-['Inter']">
-      <div className="w-full max-w-4xl bg-background shadow-xl rounded-2xl">
-        <div className=" w-full min-h-80">
-          <Line
-            data={{
-              labels: report.list.map((e) => e.date),
-              datasets: [
-                {
-                  label: "Sales",
-                  data: report.list.map((e) => e.totalPaid),
-                  borderColor: "rgb(255, 99, 132)",
-                  backgroundColor: "rgba(255, 99, 132, 0.5)",
-                  tension: 0.4, // Smooth curve
-                },
-                {
-                  label: "Profits",
-                  data: report.list.map((e) => e.totalProfit),
-
-                  borderColor: "rgb(0, 255, 132)",
-                  backgroundColor: "rgba(0, 255, 132, 0.5)",
-                  tension: 0.4, // Smooth curve
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false, // Allows flexible sizing within the container
-              plugins: {
-                legend: {
-                  position: "top" as const, // Chart.js requires position to be a specific string literal
-                  labels: {
-                    font: {
-                      family: "Inter",
-                    },
-                  },
-                },
-                title: {
-                  display: true,
-                  text: label,
-                  font: {
-                    size: 18,
-                  },
-                },
-                tooltip: {
-                  mode: "index",
-                  intersect: false,
+    <div className="w-full h-full flex items-start justify-center font-['Inter']">
+      <div className="w-full h-full min-h-[320px]">
+        <Line
+          data={{
+            labels: report.graphData.map((e) => {
+              if (report.period === "monthly") {
+                // If the period is monthly, the backend returns "01", "02", etc.
+                const monthIndex = parseInt(e.date) - 1;
+                if (!isNaN(monthIndex) && monthIndex >= 0 && monthIndex < 12) {
+                  const d = new Date(2024, monthIndex, 1);
+                  return d.toLocaleString("default", { month: "short" });
+                }
+              }
+              if (report.period === "yearly" || e.date.length === 7) {
+                // If date is "2024-01", format to "Jan"
+                const [year, month] = e.date.split("-");
+                if (year && month) {
+                  const d = new Date(parseInt(year), parseInt(month) - 1, 1);
+                  return d.toLocaleString("default", { month: "short" });
+                }
+              }
+              return e.date;
+            }),
+            datasets: [
+              {
+                label: "Sales",
+                data: report.graphData.map((e) => e.totalPaid),
+                borderColor: "#10b981", // Emerald 500
+                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 2,
+                pointHoverRadius: 5,
+              },
+              {
+                label: "Profits",
+                data: report.graphData.map((e) => e.totalProfit),
+                borderColor: "#3b82f6", // Blue 500
+                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 2,
+                pointHoverRadius: 5,
+              },
+              {
+                label: "Expenses",
+                data: report.graphData.map((e) => e.totalExpenses || 0),
+                borderColor: "#f97316", // Orange 500
+                backgroundColor: "rgba(249, 115, 22, 0.1)",
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 2,
+                pointHoverRadius: 5,
+              },
+            ],
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+            plugins: {
+              legend: {
+                position: "top" as const,
+                labels: {
+                  font: { family: "Inter", size: 12 },
+                  usePointStyle: true,
+                  boxWidth: 8,
                 },
               },
-              scales: {
-                y: {
-                  beginAtZero: false,
-                  title: {
-                    display: true,
-                    text: "Revenue",
-                    font: { family: "Inter" },
-                  },
-                  grid: {
-                    color: "#e5e7eb10", // Light gray grid lines
-                  },
+              title: {
+                display: false,
+              },
+              tooltip: {
+                backgroundColor: "rgba(17, 24, 39, 0.9)", // Gray 900
+                titleFont: { family: "Inter", size: 13 },
+                bodyFont: { family: "Inter", size: 13 },
+                padding: 12,
+                cornerRadius: 8,
+                boxPadding: 6,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "rgba(128, 128, 128, 0.1)", // Nice, faint, theme-persistent lines
+                  tickColor: "transparent",
                 },
-                x: {
-                  title: {
-                    display: true,
-                    text: "Day",
-                    font: { family: "Inter" },
-                  },
-                  grid: {
-                    color: "#f5e7eb10",
-                  },
+                ticks: {
+                  font: { family: "Inter" },
+                  color: "rgba(156, 163, 175, 0.8)", // Gray-400
+                  padding: 10,
+                },
+                border: {
+                  display: false,
                 },
               },
-            }}
-          />
-        </div>
+              x: {
+                grid: {
+                  display: false,
+                  drawBorder: false,
+                },
+                ticks: {
+                  font: { family: "Inter" },
+                  color: "rgba(156, 163, 175, 0.8)", // Gray-400
+                  maxTicksLimit: 10,
+                  padding: 10,
+                },
+                border: {
+                  display: false,
+                },
+              },
+            },
+          }}
+        />
       </div>
     </div>
   );

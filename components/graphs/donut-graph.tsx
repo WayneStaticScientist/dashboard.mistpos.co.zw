@@ -12,29 +12,22 @@ import {
 } from "chart.js";
 type AnyObject = Record<string, any>;
 
-// 1. Register the necessary components from Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// 2. Define types for the custom plugin configuration
 interface CenterTextOptions {
   text: string;
   subtext: string;
 }
 
-// 3. Define the Plugin type
 interface CenterTextPlugin extends Plugin<"doughnut"> {
-  // Add the centerText options field to the plugin options
   options?: {
     centerText: CenterTextOptions;
   };
 }
 
-// --- Custom Plugin to Draw Text in the Center of the Doughnut ---
 const centerTextPlugin: CenterTextPlugin = {
   id: "centerText",
-  // Type the chart parameter using Chart<'doughnut'>
   beforeDraw(chart: Chart<"doughnut">) {
-    // Safely cast and retrieve plugin options
     const centerText = (chart.options.plugins as AnyObject)?.centerText as
       | CenterTextOptions
       | undefined;
@@ -52,45 +45,27 @@ const centerTextPlugin: CenterTextPlugin = {
       return;
     }
 
-    // Getting center coordinates from the chart meta
     const xCenter = meta.data[0].x;
     const yCenter = meta.data[0].y;
 
-    // 1. Draw the Main Text (Title)
-    ctx.font = "bold 1.2rem sans-serif";
-    ctx.fillStyle = "#4b5563";
+    ctx.font = "bold 1.2rem Inter, sans-serif";
+    ctx.fillStyle = "#9ca3af"; // Gray 400
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(text, xCenter, yCenter - 15);
+    ctx.fillText(text, xCenter, yCenter - 10);
 
-    // 2. Draw the Subtext (Subtitle/Value)
-    ctx.font = "0.8rem sans-serif";
-    ctx.fillStyle = "#6b7280";
-    ctx.fillText(subtext, xCenter, yCenter + 10);
+    ctx.font = "0.8rem Inter, sans-serif";
+    ctx.fillStyle = "#6b7280"; // Gray 500
+    ctx.fillText(subtext, xCenter, yCenter + 15);
 
     ctx.restore();
   },
 };
 
-// 4. Define the Data type
-const data: ChartData<"doughnut"> = {
-  labels: ["Sales", "Marketing"],
-  datasets: [
-    {
-      label: "Department Allocation",
-      data: [35, 65],
-      backgroundColor: ["#ef4444", "#f59e0b"],
-      borderColor: "#ffffff",
-      borderWidth: 4,
-    },
-  ],
-};
-
-// 5. Define the Options type
 const options: ChartOptions<"doughnut"> = {
   responsive: true,
   maintainAspectRatio: false,
-  cutout: "60%",
+  cutout: "75%",
   rotation: 0,
   plugins: {
     legend: {
@@ -98,21 +73,26 @@ const options: ChartOptions<"doughnut"> = {
       labels: {
         usePointStyle: true,
         padding: 20,
+        font: { family: "Inter" },
+        color: "#9ca3af",
       },
     },
     tooltip: {
+      backgroundColor: "rgba(17, 24, 39, 0.9)",
+      titleFont: { family: "Inter", size: 13 },
+      bodyFont: { family: "Inter", size: 13 },
+      padding: 12,
+      cornerRadius: 8,
       callbacks: {
-        // label callback is implicitly typed by Chart.js context
-        label: ({ label, raw }) => `${label}: ${raw}%`,
+        label: ({ label, raw }) => ` ${label}: ${Number(raw).toFixed(1)}%`,
       },
     },
   },
 };
 
-// 6. Define the Functional Component type
 export const CircularWheelChart = ({
   label,
-  className,
+  className = "",
   chartData,
 }: {
   className?: string;
@@ -127,21 +107,19 @@ export const CircularWheelChart = ({
     (prev, current) => prev + current.value,
     0
   );
+  
   return (
-    <div className={`${className}  flex items-center flex-col`}>
-      <h2 className="md:text-xl  text-foreground mb-6 text-center text-xs w-[100px]  md:w-[200px]">
-        {label}
-      </h2>
-      <div className="w-[100px] h-[100px] md:w-[200px] md:h-[200px] relative">
+    <div className={`flex flex-col items-center justify-center w-full ${className}`}>
+      <div className="w-full h-[250px] relative">
         <Doughnut
           data={{
             labels: chartData.map((e) => e.name),
             datasets: [
               {
-                label: "Department Allocation",
-                data: chartData.map((e) => (e.value * 100) / totalData),
+                data: chartData.map((e) => totalData > 0 ? (e.value * 100) / totalData : 0),
                 backgroundColor: chartData.map((e) => e.color),
                 borderWidth: 0,
+                hoverOffset: 4,
               },
             ],
           }}
@@ -152,5 +130,3 @@ export const CircularWheelChart = ({
     </div>
   );
 };
-
-// 7. Type the main App function
